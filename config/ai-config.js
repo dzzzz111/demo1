@@ -1,59 +1,44 @@
-// AI大模型配置文件
-export const AI_CONFIG = {
-  // 方案一：OpenAI兼容API (如ChatGLM、通义千问等)
-  openai_compatible: {
-    apiUrl: 'https://your-api-endpoint.com/v1/chat/completions',
-    apiKey: 'your-api-key-here',
-    model: 'your-model-name',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer your-api-key-here'
-    }
+/**
+ * AI配置文件
+ * 包含各种AI服务的配置信息
+ */
+
+// 当前使用的AI配置
+const CURRENT_CONFIG = 'ALIYUN_BAILIAN';
+
+// 各种AI服务配置
+const AI_CONFIGS = {
+  // 阿里云百炼配置
+  ALIYUN_BAILIAN: {
+    appId: 'c70564591b854bbd8b7fb4ddd20582e0',
+    apiKey: 'sk-7f99ba359d6f4c7b98924e1cc71e28d6',
+    apiUrl: 'https://dashscope.aliyuncs.com/api/v1/apps',
+    modelName: 'qwen-max', // 可根据需要更换模型
+    enableThoughts: true, // 是否启用思考过程
+    streamOutput: true // 是否启用流式输出
   },
 
-  // 方案二：自定义API格式
-  custom_api: {
-    apiUrl: 'https://your-custom-api.com/chat',
-    apiKey: 'your-api-key',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-API-Key': 'your-api-key'
-    },
-    // 自定义请求格式转换函数
-    formatRequest: (message) => {
-      return {
-        query: message,
-        history: [],
-        stream: false
-      };
-    },
-    // 自定义响应格式解析函数
-    parseResponse: (response) => {
-      return response.data.answer || response.data.response;
-    }
-  },
-
-  // 方案三：WebSocket连接
-  websocket: {
-    wsUrl: 'wss://your-websocket-endpoint.com/chat',
-    apiKey: 'your-api-key'
-  },
-
-  // 方案四：本地部署的大模型
-  local_model: {
-    apiUrl: 'http://localhost:8000/chat',
-    timeout: 30000 // 本地模型可能需要更长的响应时间
-  },
-
-  // 通用配置
-  common: {
-    maxTokens: 1000,
-    temperature: 0.7,
-    timeout: 15000,
-    retryTimes: 3,
-    systemPrompt: '你是一个专业的医疗助手，请根据用户描述的症状提供专业的医疗建议。注意：你的建议仅供参考，严重情况请及时就医。'
-  }
+  // 其他可能的配置可以在这里添加
+  // 例如OpenAI, ChatGLM等
 };
 
-// 当前使用的配置 - 请根据您的实际情况修改
-export const CURRENT_CONFIG = 'openai_compatible'; // 可选: openai_compatible, custom_api, websocket, local_model
+// 获取当前配置
+function getCurrentConfig() {
+  return AI_CONFIGS[CURRENT_CONFIG];
+}
+
+// 导出配置
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    CURRENT_CONFIG,
+    AI_CONFIGS,
+    getCurrentConfig
+  };
+}
+
+// ES6导出
+if (typeof exports !== 'undefined') {
+  exports.CURRENT_CONFIG = CURRENT_CONFIG;
+  exports.AI_CONFIGS = AI_CONFIGS;
+  exports.getCurrentConfig = getCurrentConfig;
+}
