@@ -15,7 +15,7 @@
 /* 返回按钮 */
 .back-btn {
   position: fixed;
-  top: calc(var(--status-bar-height) + 20rpx);
+  top: calc(25px + 20rpx);
   left: 30rpx;
   width: 80rpx;
   height: 80rpx;
@@ -83,7 +83,8 @@
   position: absolute;
   bottom: 0;
   left: 50%;
-  transform: translateX(-50%);
+  -webkit-transform: translateX(-50%);
+          transform: translateX(-50%);
   width: 80rpx;
   height: 4rpx;
   background-color: #3a7bd5;
@@ -150,7 +151,8 @@
   height: 8rpx;
   border-left: 4rpx solid #fff;
   border-bottom: 4rpx solid #fff;
-  transform: rotate(-45deg);
+  -webkit-transform: rotate(-45deg);
+          transform: rotate(-45deg);
 }
 .remember-pwd text, .forget-pwd {
   font-size: 24rpx;
@@ -239,3 +241,4 @@
 .agreement-text .link {
   color: #3a7bd5;
 }
+

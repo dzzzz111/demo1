@@ -5,6 +5,14 @@
   position: relative;
   padding-bottom: 30rpx;
 }
+@-webkit-keyframes gradientShift {
+0% { background-position: 0% 50%;
+}
+50% { background-position: 100% 50%;
+}
+100% { background-position: 0% 50%;
+}
+}
 @keyframes gradientShift {
 0% { background-position: 0% 50%;
 }
@@ -60,17 +68,25 @@
   position: absolute;
   bottom: 20rpx;
   left: 50%;
-  transform: translateX(-50%);
+  -webkit-transform: translateX(-50%);
+          transform: translateX(-50%);
   width: 80rpx;
   height: 8rpx;
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.9), transparent);
   border-radius: 4rpx;
-  animation: decorationPulse 3s ease-in-out infinite;
+  -webkit-animation: decorationPulse 3s ease-in-out infinite;
+          animation: decorationPulse 3s ease-in-out infinite;
+}
+@-webkit-keyframes decorationPulse {
+0%, 100% { opacity: 0.6; -webkit-transform: translateX(-50%) scaleX(1); transform: translateX(-50%) scaleX(1);
+}
+50% { opacity: 1; -webkit-transform: translateX(-50%) scaleX(1.2); transform: translateX(-50%) scaleX(1.2);
+}
 }
 @keyframes decorationPulse {
-0%, 100% { opacity: 0.6; transform: translateX(-50%) scaleX(1);
+0%, 100% { opacity: 0.6; -webkit-transform: translateX(-50%) scaleX(1); transform: translateX(-50%) scaleX(1);
 }
-50% { opacity: 1; transform: translateX(-50%) scaleX(1.2);
+50% { opacity: 1; -webkit-transform: translateX(-50%) scaleX(1.2); transform: translateX(-50%) scaleX(1.2);
 }
 }
 
@@ -89,11 +105,13 @@
   border-radius: 24rpx;
   overflow: hidden;
   box-shadow: 0 12rpx 48rpx rgba(102, 126, 234, 0.2);
-  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+          transform: translateZ(0);
   transition: all 0.3s ease;
 }
 .swiper:hover {
-  transform: translateY(-4rpx) scale(1.02);
+  -webkit-transform: translateY(-4rpx) scale(1.02);
+          transform: translateY(-4rpx) scale(1.02);
   box-shadow: 0 16rpx 64rpx rgba(102, 126, 234, 0.3);
 }
 .swiper-item {
@@ -105,10 +123,13 @@
 .swiper-image {
   width: 100%;
   height: 100%;
+  transition: -webkit-transform 0.5s ease;
   transition: transform 0.5s ease;
+  transition: transform 0.5s ease, -webkit-transform 0.5s ease;
 }
 .swiper-item:hover .swiper-image {
-  transform: scale(1.05);
+  -webkit-transform: scale(1.05);
+          transform: scale(1.05);
 }
 .swiper-overlay {
   position: absolute;
@@ -162,7 +183,8 @@
   border: 1rpx solid rgba(255, 255, 255, 0.3);
 }
 .function-item:hover {
-  transform: translateY(-8rpx) scale(1.02);
+  -webkit-transform: translateY(-8rpx) scale(1.02);
+          transform: translateY(-8rpx) scale(1.02);
   box-shadow: 0 20rpx 60rpx rgba(102, 126, 234, 0.25);
 }
 .function-item::before {
@@ -194,31 +216,43 @@
   justify-content: center;
   position: relative;
   z-index: 2;
+  transition: -webkit-transform 0.3s ease;
   transition: transform 0.3s ease;
+  transition: transform 0.3s ease, -webkit-transform 0.3s ease;
 }
 .function-item:hover .function-icon {
-  transform: scale(1.1) rotate(5deg);
+  -webkit-transform: scale(1.1) rotate(5deg);
+          transform: scale(1.1) rotate(5deg);
 }
 .function-icon image {
   width: 80rpx;
   height: 80rpx;
-  filter: drop-shadow(0 4rpx 12rpx rgba(0,0,0,0.2));
+  -webkit-filter: drop-shadow(0 4rpx 12rpx rgba(0,0,0,0.2));
+          filter: drop-shadow(0 4rpx 12rpx rgba(0,0,0,0.2));
 }
 .icon-glow {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  -webkit-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
   width: 160rpx;
   height: 160rpx;
   border-radius: 50%;
   opacity: 0.2;
-  animation: pulse 3s ease-in-out infinite;
+  -webkit-animation: pulse 3s ease-in-out infinite;
+          animation: pulse 3s ease-in-out infinite;
+}
+@-webkit-keyframes pulse {
+0%, 100% { -webkit-transform: translate(-50%, -50%) scale(1); transform: translate(-50%, -50%) scale(1); opacity: 0.2;
+}
+50% { -webkit-transform: translate(-50%, -50%) scale(1.2); transform: translate(-50%, -50%) scale(1.2); opacity: 0.05;
+}
 }
 @keyframes pulse {
-0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.2;
+0%, 100% { -webkit-transform: translate(-50%, -50%) scale(1); transform: translate(-50%, -50%) scale(1); opacity: 0.2;
 }
-50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.05;
+50% { -webkit-transform: translate(-50%, -50%) scale(1.2); transform: translate(-50%, -50%) scale(1.2); opacity: 0.05;
 }
 }
 .ai-icon {
@@ -260,7 +294,8 @@
   transition: all 0.3s ease;
 }
 .doctor-section:hover, .news-section:hover {
-  transform: translateY(-2rpx);
+  -webkit-transform: translateY(-2rpx);
+          transform: translateY(-2rpx);
   box-shadow: 0 12rpx 48rpx rgba(102, 126, 234, 0.18);
 }
 .section-header {
@@ -278,7 +313,8 @@
 .section-icon {
   font-size: 36rpx;
   margin-right: 16rpx;
-  filter: drop-shadow(0 2rpx 4rpx rgba(0,0,0,0.1));
+  -webkit-filter: drop-shadow(0 2rpx 4rpx rgba(0,0,0,0.1));
+          filter: drop-shadow(0 2rpx 4rpx rgba(0,0,0,0.1));
 }
 .title {
   font-size: 36rpx;
@@ -297,7 +333,8 @@
 }
 .more:hover {
   background: rgba(102, 126, 234, 0.2);
-  transform: scale(1.05);
+  -webkit-transform: scale(1.05);
+          transform: scale(1.05);
 }
 .doctor-scroll {
   width: 100%;
@@ -323,7 +360,8 @@
   transition: all 0.3s ease;
 }
 .doctor-card:hover {
-  transform: translateY(-4rpx) scale(1.02);
+  -webkit-transform: translateY(-4rpx) scale(1.02);
+          transform: translateY(-4rpx) scale(1.02);
   box-shadow: 0 12rpx 36rpx rgba(102, 126, 234, 0.25);
 }
 .doctor-avatar-wrapper {
@@ -336,10 +374,13 @@
   border-radius: 50%;
   border: 4rpx solid #667eea;
   box-shadow: 0 4rpx 16rpx rgba(102, 126, 234, 0.2);
+  transition: -webkit-transform 0.3s ease;
   transition: transform 0.3s ease;
+  transition: transform 0.3s ease, -webkit-transform 0.3s ease;
 }
 .doctor-card:hover .doctor-avatar {
-  transform: scale(1.05);
+  -webkit-transform: scale(1.05);
+          transform: scale(1.05);
 }
 .online-status {
   position: absolute;
@@ -351,12 +392,19 @@
   border-radius: 50%;
   border: 4rpx solid #fff;
   box-shadow: 0 2rpx 8rpx rgba(76, 175, 80, 0.3);
-  animation: statusPulse 2s ease-in-out infinite;
+  -webkit-animation: statusPulse 2s ease-in-out infinite;
+          animation: statusPulse 2s ease-in-out infinite;
+}
+@-webkit-keyframes statusPulse {
+0%, 100% { -webkit-transform: scale(1); transform: scale(1);
+}
+50% { -webkit-transform: scale(1.1); transform: scale(1.1);
+}
 }
 @keyframes statusPulse {
-0%, 100% { transform: scale(1);
+0%, 100% { -webkit-transform: scale(1); transform: scale(1);
 }
-50% { transform: scale(1.1);
+50% { -webkit-transform: scale(1.1); transform: scale(1.1);
 }
 }
 .doctor-name {
@@ -385,7 +433,8 @@
   transition: all 0.3s ease;
 }
 .consult-btn:hover {
-  transform: translateY(-2rpx);
+  -webkit-transform: translateY(-2rpx);
+          transform: translateY(-2rpx);
   box-shadow: 0 6rpx 20rpx rgba(102, 126, 234, 0.4);
 }
 
@@ -403,7 +452,8 @@
 }
 .news-item:hover {
   background: rgba(102, 126, 234, 0.05);
-  transform: translateX(8rpx) scale(1.01);
+  -webkit-transform: translateX(8rpx) scale(1.01);
+          transform: translateX(8rpx) scale(1.01);
   box-shadow: 0 4rpx 20rpx rgba(102, 126, 234, 0.1);
 }
 .news-item:last-child {
@@ -416,10 +466,13 @@
   border-radius: 16rpx;
   margin-right: 24rpx;
   box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
+  transition: -webkit-transform 0.3s ease;
   transition: transform 0.3s ease;
+  transition: transform 0.3s ease, -webkit-transform 0.3s ease;
 }
 .news-item:hover .news-image {
-  transform: scale(1.05);
+  -webkit-transform: scale(1.05);
+          transform: scale(1.05);
 }
 .news-content {
   flex: 1;
@@ -491,34 +544,54 @@ view, text, image, button {
   -webkit-tap-highlight-color: transparent;
 }
 .container > view {
-  animation: fadeInUp 0.6s ease-out;
+  -webkit-animation: fadeInUp 0.6s ease-out;
+          animation: fadeInUp 0.6s ease-out;
+}
+@-webkit-keyframes fadeInUp {
+from {
+    opacity: 0;
+    -webkit-transform: translateY(30rpx);
+            transform: translateY(30rpx);
+}
+to {
+    opacity: 1;
+    -webkit-transform: translateY(0);
+            transform: translateY(0);
+}
 }
 @keyframes fadeInUp {
 from {
     opacity: 0;
-    transform: translateY(30rpx);
+    -webkit-transform: translateY(30rpx);
+            transform: translateY(30rpx);
 }
 to {
     opacity: 1;
-    transform: translateY(0);
+    -webkit-transform: translateY(0);
+            transform: translateY(0);
 }
 }
 
 /* 为不同元素添加延迟动画 */
 .header {
-  animation-delay: 0s;
+  -webkit-animation-delay: 0s;
+          animation-delay: 0s;
 }
 .swiper-section {
-  animation-delay: 0.1s;
+  -webkit-animation-delay: 0.1s;
+          animation-delay: 0.1s;
 }
 .function-area {
-  animation-delay: 0.2s;
+  -webkit-animation-delay: 0.2s;
+          animation-delay: 0.2s;
 }
 .doctor-section {
-  animation-delay: 0.3s;
+  -webkit-animation-delay: 0.3s;
+          animation-delay: 0.3s;
 }
 .news-section {
-  animation-delay: 0.4s;
+  -webkit-animation-delay: 0.4s;
+          animation-delay: 0.4s;
 }
 
 /* 滚动条美化 */
@@ -537,3 +610,4 @@ to {
 ::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(135deg, #764ba2, #667eea);
 }
+

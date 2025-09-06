@@ -44,8 +44,21 @@
           </view>
         </view>
 
+        <!-- 流式响应状态 -->
+        <view class="message-item" v-if="isStreaming">
+          <view class="message ai-message">
+            <view class="message-avatar ai-avatar">
+              <image src="/static/images/ai-avatar.png" mode="aspectFill"></image>
+            </view>
+            <view class="message-content ai-content">
+              <text>{{ streamingMessage }}</text>
+              <view class="message-time">{{ getCurrentTime() }}</view>
+            </view>
+          </view>
+        </view>
+
         <!-- 加载状态 -->
-        <view class="loading-message" v-if="isLoading">
+        <view class="loading-message" v-if="isLoading && !isStreaming">
           <view class="message-avatar ai-avatar">
             <image src="/static/images/ai-avatar.png" mode="aspectFill"></image>
           </view>
@@ -85,7 +98,8 @@
 </template>
 
 <script>
-// import AIService from '../../utils/ai-service.js';
+import AliyunBailianService from '../../utils/ai-service.js';
+import { getCurrentConfig } from '../../config/ai-config.js';
 
 export default {
   data() {
@@ -100,13 +114,25 @@ export default {
       ],
       inputMessage: '',
       isLoading: false,
-      scrollTop: 0
+      scrollTop: 0,
+      aiService: null,
+      streamingMessage: '',
+      isStreaming: false
     };
   },
   onLoad() {
     // 获取状态栏高度
     const systemInfo = uni.getSystemInfoSync();
     this.statusBarHeight = systemInfo.statusBarHeight || 20;
+
+    // 初始化AI服务
+    try {
+      const config = getCurrentConfig();
+      this.aiService = new AliyunBailianService(config);
+      console.log('AI服务初始化成功');
+    } catch (error) {
+      console.error('AI服务初始化失败:', error);
+    }
 
     // 初始化聊天
     this.scrollToBottom();
@@ -130,15 +156,8 @@ export default {
       this.isLoading = true;
 
       try {
-        // 调用您的大模型API
-        const aiResponse = await this.callAIModel(userMessage);
-
-        // 添加AI回复
-        this.messageList.push({
-          type: 'ai',
-          content: aiResponse,
-          time: this.getCurrentTime()
-        });
+        // 调用AI模型API（支持流式响应）
+        await this.callAIModelWithStreaming(userMessage);
 
       } catch (error) {
         console.error('AI调用失败:', error);
@@ -153,28 +172,120 @@ export default {
       }
     },
 
-    // 调用大模型API
-    async callAIModel(message) {
-      // 获取对话历史（最近5轮对话）
-      const conversationHistory = this.messageList
-        .slice(-10) // 取最近10条消息（5轮对话）
-        .filter(msg => msg.type !== 'system');
+    // 调用大模型API（支持流式响应）
+    async callAIModelWithStreaming(message) {
+      if (!this.aiService) {
+        throw new Error('AI服务未初始化');
+      }
 
-      // 临时模拟AI回复，实际项目中替换为真实AI服务调用
-      // return await AIService.chatWithRetry(message, conversationHistory);
-      
-      // 模拟AI回复
-      const responses = [
-        '根据您描述的症状，建议您注意休息，多喝水。如果症状持续，请及时就医。',
-        '这种情况可能是由多种原因引起的，建议您保持良好的作息习惯，如有不适请咨询专业医生。',
-        '感谢您的咨询，根据您的描述，建议您先观察症状变化，必要时到医院进行检查。',
-        '您提到的症状需要进一步观察，建议您记录症状变化情况，如有加重请及时就医。'
-      ];
-      
-      // 模拟网络延迟
-      await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
-      
-      return responses[Math.floor(Math.random() * responses.length)];
+      try {
+        // 构建消息历史
+        const messages = this.messageList
+          .filter(msg => msg.type !== 'system')
+          .map(msg => ({
+            role: msg.type === 'user' ? 'user' : 'assistant',
+            content: msg.content
+          }));
+
+        // 添加当前用户消息
+        messages.push({
+          role: 'user',
+          content: message
+        });
+
+        // 初始化流式响应状态
+        this.streamingMessage = '';
+        this.isStreaming = true;
+
+        // 定义流式响应回调函数
+        const onStreamChunk = (chunk, isComplete) => {
+          this.streamingMessage = chunk;
+          
+          // 如果是完整的响应，添加到消息列表
+          if (isComplete) {
+            this.messageList.push({
+              type: 'ai',
+              content: chunk,
+              time: this.getCurrentTime()
+            });
+            this.isStreaming = false;
+            this.streamingMessage = '';
+          }
+          
+          // 自动滚动到底部
+          this.scrollToBottom();
+        };
+
+        // 调用AI服务（启用流式响应）
+        const response = await this.aiService.sendDiagnosisRequest(
+          messages, 
+          null, 
+          {}, 
+          onStreamChunk
+        );
+        
+        // 如果流式响应没有完成，确保添加到消息列表
+        if (this.isStreaming && this.streamingMessage) {
+          this.messageList.push({
+            type: 'ai',
+            content: this.streamingMessage,
+            time: this.getCurrentTime()
+          });
+          this.isStreaming = false;
+          this.streamingMessage = '';
+        }
+        
+        // 返回完整的AI回复
+        if (response && response.output && response.output.text) {
+          return response.output.text;
+        } else if (this.streamingMessage) {
+          // 如果流式消息有内容，返回流式消息
+          return this.streamingMessage;
+        } else {
+          throw new Error('AI回复内容为空');
+        }
+      } catch (error) {
+        console.error('AI调用失败:', error);
+        this.isStreaming = false;
+        this.streamingMessage = '';
+        throw error;
+      }
+    },
+
+    // 调用大模型API（原始方法，保留作为备选）
+    async callAIModel(message) {
+      if (!this.aiService) {
+        throw new Error('AI服务未初始化');
+      }
+
+      try {
+        // 构建消息历史
+        const messages = this.messageList
+          .filter(msg => msg.type !== 'system')
+          .map(msg => ({
+            role: msg.type === 'user' ? 'user' : 'assistant',
+            content: msg.content
+          }));
+
+        // 添加当前用户消息
+        messages.push({
+          role: 'user',
+          content: message
+        });
+
+        // 调用AI服务
+        const response = await this.aiService.sendDiagnosisRequest(messages);
+        
+        // 返回AI回复
+        if (response && response.output && response.output.text) {
+          return response.output.text;
+        } else {
+          throw new Error('AI回复内容为空');
+        }
+      } catch (error) {
+        console.error('AI调用失败:', error);
+        throw error;
+      }
     },
 
     // 获取当前时间
