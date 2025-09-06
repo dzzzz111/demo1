@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>创建 TabBar 图标</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        canvas { border: 1px solid #ccc; margin: 10px; }
+        .icon-set { margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <h2>TabBar 图标生成器</h2>
+    <p>生成符合微信小程序要求的 TabBar 图标（小于 40KB）</p>
+    
+    <div class="icon-set">
+        <h3>首页图标</h3>
+        <canvas id="home" width="81" height="81"></canvas>
+        <canvas id="home-active" width="81" height="81"></canvas>
+        <br>
+        <button onclick="downloadIcon('home')">下载普通状态</button>
+        <button onclick="downloadIcon('home-active')">下载激活状态</button>
+    </div>
+    
+    <div class="icon-set">
+        <h3>我的图标</h3>
+        <canvas id="mine" width="81" height="81"></canvas>
+        <canvas id="mine-active" width="81" height="81"></canvas>
+        <br>
+        <button onclick="downloadIcon('mine')">下载普通状态</button>
+        <button onclick="downloadIcon('mine-active')">下载激活状态</button>
+    </div>
+
+    <script>
+        // 绘制首页图标
+        function drawHomeIcon(ctx, active = false) {
+            const color = active ? '#3a7bd5' : '#999';
+            ctx.clearRect(0, 0, 81, 81);
+            ctx.fillStyle = color;
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            
+            // 绘制房子
+            ctx.beginPath();
+            // 屋顶
+            ctx.moveTo(40, 15);
+            ctx.lineTo(20, 35);
+            ctx.lineTo(60, 35);
+            ctx.closePath();
+            ctx.fill();
+            
+            // 房身
+            ctx.fillRect(25, 35, 30, 25);
+            
+            // 门
+            ctx.fillStyle = active ? '#fff' : '#f5f5f5';
+            ctx.fillRect(35, 45, 10, 15);
+            
+            // 窗户
+            ctx.fillRect(28, 40, 6, 6);
+            ctx.fillRect(47, 40, 6, 6);
+        }
+        
+        // 绘制我的图标
+        function drawMineIcon(ctx, active = false) {
+            const color = active ? '#3a7bd5' : '#999';
+            ctx.clearRect(0, 0, 81, 81);
+            ctx.fillStyle = color;
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            
+            // 绘制人头
+            ctx.beginPath();
+            ctx.arc(40, 30, 12, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // 绘制身体
+            ctx.beginPath();
+            ctx.arc(40, 55, 18, 0, Math.PI);
+            ctx.fill();
+        }
+        
+        // 初始化画布
+        function initCanvas() {
+            const homeCanvas = document.getElementById('home');
+            const homeActiveCanvas = document.getElementById('home-active');
+            const mineCanvas = document.getElementById('mine');
+            const mineActiveCanvas = document.getElementById('mine-active');
+            
+            drawHomeIcon(homeCanvas.getContext('2d'), false);
+            drawHomeIcon(homeActiveCanvas.getContext('2d'), true);
+            drawMineIcon(mineCanvas.getContext('2d'), false);
+            drawMineIcon(mineActiveCanvas.getContext('2d'), true);
+        }
+        
+        // 下载图标
+        function downloadIcon(id) {
+            const canvas = document.getElementById(id);
+            const link = document.createElement('a');
+            
+            let filename;
+            if (id === 'home') filename = 'tab-home.png';
+            else if (id === 'home-active') filename = 'tab-home-active.png';
+            else if (id === 'mine') filename = 'tab-mine.png';
+            else if (id === 'mine-active') filename = 'tab-mine-active.png';
+            
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+        
+        // 页面加载时初始化
+        window.onload = initCanvas;
+    </script>
+</body>
+</html>
