@@ -1,0 +1,21 @@
+<svg width="81" height="81" viewBox="0 0 81 81" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景圆 -->
+  <circle cx="40.5" cy="40.5" r="35" fill="none" stroke="#667eea" stroke-width="3"/>
+  
+  <!-- 人群图标 - 三个人 -->
+  <!-- 第一个人 -->
+  <circle cx="25" cy="30" r="6" fill="#667eea"/>
+  <path d="M25 38 C20 38 16 42 16 47 L34 47 C34 42 30 38 25 38 Z" fill="#667eea"/>
+  
+  <!-- 第二个人 (中间) -->
+  <circle cx="40.5" cy="25" r="7" fill="#667eea"/>
+  <path d="M40.5 33 C35 33 30 37 30 43 L51 43 C51 37 46 33 40.5 33 Z" fill="#667eea"/>
+  
+  <!-- 第三个人 -->
+  <circle cx="56" cy="30" r="6" fill="#667eea"/>
+  <path d="M56 38 C61 38 65 42 65 47 L47 47 C47 42 51 38 56 38 Z" fill="#667eea"/>
+  
+  <!-- 对话气泡 -->
+  <ellipse cx="40.5" cy="55" rx="15" ry="8" fill="#667eea"/>
+  <path d="M35 62 L40.5 67 L46 62" fill="#667eea"/>
+</svg>

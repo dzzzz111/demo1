@@ -1,0 +1,103 @@
+{
+	"pages": [
+		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationBarTitleText": "医疗助手",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/ai-doctor/index",
+			"style": {
+				"navigationBarTitleText": "AI智能问诊",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/image-diagnose/index",
+			"style": {
+				"navigationBarTitleText": "图像智能诊断",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/mine/index",
+			"style": {
+				"navigationBarTitleText": "个人中心",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/mine/login",
+			"style": {
+				"navigationBarTitleText": "登录",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/mine/register",
+			"style": {
+				"navigationBarTitleText": "注册",
+				"navigationStyle": "custom"
+			}
+		},
+	{
+			"path": "pages/mine/settings",
+			"style": {
+				"navigationBarTitleText": "系统设置",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/community/index",
+			"style": {
+				"navigationBarTitleText": "健康社区",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/community/detail",
+			"style": {
+				"navigationBarTitleText": "帖子详情",
+				"navigationStyle": "custom"
+			}
+		}
+	],
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "医疗助手",
+		"navigationBarBackgroundColor": "#F8F8F8",
+		"backgroundColor": "#F5F7FA"
+	},
+	"tabBar": {
+		"color": "#999",
+		"selectedColor": "#667eea",
+		"backgroundColor": "#fff",
+		"borderStyle": "black",
+		"height": "60px",
+		"list": [
+			{
+				"pagePath": "pages/index/index",
+				"text": "首页",
+				"iconPath": "static/tabbar/tab-home.png",
+				"selectedIconPath": "static/tabbar/tab-home-active.png"
+			},
+			{
+				"pagePath": "pages/community/index",
+				"text": "社区",
+				"iconPath": "static/tabbar/tab-home.png",
+				"selectedIconPath": "static/tabbar/tab-home-active.png"
+				// 注意：需要创建社区图标文件 tab-community.png 和 tab-community-active.png
+				// 然后将上面的路径改为 "static/tabbar/tab-community.png"
+			},
+			{
+				"pagePath": "pages/mine/index",
+				"text": "我的",
+				"iconPath": "static/tabbar/tab-mine.png",
+				"selectedIconPath": "static/tabbar/tab-mine-active.png"
+			}
+		]
+	},
+	"uniIdRouter": {}
+}

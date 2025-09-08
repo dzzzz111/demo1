@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabbar 图标创建指南</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .icon-specs {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .icon-preview {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .icon-item {
+            text-align: center;
+        }
+        .icon-item img {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 10px;
+        }
+        .needed-files {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .steps {
+            counter-reset: step-counter;
+        }
+        .step {
+            counter-increment: step-counter;
+            margin-bottom: 15px;
+            padding-left: 40px;
+            position: relative;
+        }
+        .step::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: #667eea;
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .design-tips {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 15px;
+            font-family: monospace;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Tabbar 图标创建指南</h1>
+        
+        <div class="icon-specs">
+            <h2>📏 图标规格要求</h2>
+            <ul>
+                <li><strong>尺寸：</strong>81px × 81px (推荐)</li>
+                <li><strong>格式：</strong>PNG (透明背景)</li>
+                <li><strong>颜色：</strong>普通状态 #999999，选中状态 #667eea</li>
+                <li><strong>风格：</strong>线性图标，简洁清晰</li>
+                <li><strong>边距：</strong>图标周围留有适当边距</li>
+            </ul>
+        </div>
+
+        <div class="needed-files">
+            <h2>📁 需要创建的文件</h2>
+            <p>需要在 <code>static/tabbar/</code> 目录下创建以下文件：</p>
+            <ul>
+                <li><strong>tab-community.png</strong> - 社区图标（普通状态）</li>
+                <li><strong>tab-community-active.png</strong> - 社区图标（选中状态）</li>
+            </ul>
+        </div>
+
+        <div class="steps">
+            <h2>🛠️ 创建步骤</h2>
+            <div class="step">
+                <strong>设计图标概念</strong> - 社区图标可以采用人群、对话、论坛等元素
+            </div>
+            <div class="step">
+                <strong>创建普通状态图标</strong> - 使用 #999999 颜色
+            </div>
+            <div class="step">
+                <strong>创建选中状态图标</strong> - 使用 #667eea 颜色
+            </div>
+            <div class="step">
+                <strong>导出PNG文件</strong> - 确保透明背景
+            </div>
+            <div class="step">
+                <strong>放置到正确目录</strong> - 保存到 static/tabbar/ 目录
+            </div>
+            <div class="step">
+                <strong>更新配置文件</strong> - 修改 pages.json 中的图标路径
+            </div>
+        </div>
+
+        <div class="design-tips">
+            <h2>💡 设计建议</h2>
+            <ul>
+                <li>保持图标简洁，避免过多细节</li>
+                <li>使用统一的线条粗细</li>
+                <li>确保在小尺寸下也能清晰识别</li>
+                <li>与其他tabbar图标保持风格一致</li>
+                <li>选中状态可以更粗或使用填充效果</li>
+            </ul>
+        </div>
+
+        <div class="icon-preview">
+            <div class="icon-item">
+                <div style="width: 40px; height: 40px; background: #f0f0f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px;">
+                    <span style="font-size: 24px;">👥</span>
+                </div>
+                <div>社区图标示例</div>
+                <div style="font-size: 12px; color: #666;">使用人群图标</div>
+            </div>
+            <div class="icon-item">
+                <div style="width: 40px; height: 40px; background: #f0f0f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px;">
+                    <span style="font-size: 24px;">💬</span>
+                </div>
+                <div>社区图标示例</div>
+                <div style="font-size: 12px; color: #666;">使用对话图标</div>
+            </div>
+            <div class="icon-item">
+                <div style="width: 40px; height: 40px; background: #f0f0f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px;">
+                    <span style="font-size: 24px;">🏠</span>
+                </div>
+                <div>首页图标示例</div>
+                <div style="font-size: 12px; color: #666;">现有首页图标</div>
+            </div>
+            <div class="icon-item">
+                <div style="width: 40px; height: 40px; background: #f0f0f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px;">
+                    <span style="font-size: 24px;">👤</span>
+                </div>
+                <div>我的图标示例</div>
+                <div style="font-size: 12px; color: #666;">现有我的图标</div>
+            </div>
+        </div>
+
+        <div class="code-block">
+            <h3>当前配置文件内容：</h3>
+            <pre>{
+  "pagePath": "pages/community/index",
+  "text": "社区",
+  "iconPath": "static/tabbar/tab-home.png",
+  "selectedIconPath": "static/tabbar/tab-home-active.png"
+}</pre>
+            <p><strong>注意：</strong>当前临时使用首页图标，需要替换为社区图标：</p>
+            <pre>{
+  "pagePath": "pages/community/index",
+  "text": "社区",
+  "iconPath": "static/tabbar/tab-community.png",
+  "selectedIconPath": "static/tabbar/tab-community-active.png"
+}</pre>
+        </div>
+
+        <div style="margin-top: 30px; padding: 20px; background: #e3f2fd; border-radius: 8px;">
+            <h3>🎯 推荐的图标设计工具</h3>
+            <ul>
+                <li><strong>Figma:</strong> 免费的在线设计工具，有丰富的图标库</li>
+                <li><strong>Iconfont:</strong> 阿里巴巴图标库，大量免费图标</li>
+                <li><strong>Flaticon:</strong> 国外知名图标库</li>
+                <li><strong>Sketch/Figma:</strong> 专业设计软件</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
