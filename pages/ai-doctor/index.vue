@@ -56,10 +56,10 @@
               <image src="/static/images/ai-avatar.png" mode="aspectFill"></image>
             </view>
             <view class="message-content ai-content" @longpress="handleLongPress(streamingMessage)">
-              <text>{{ streamingMessage }}</text>
+              <text>{{ streamingMessage || '对方正在输入中...' }}</text>
               <view class="message-footer">
                 <view class="message-time">{{ getCurrentTime() }}</view>
-                <view class="inline-copy-btn" @click.stop="copyMessage(streamingMessage)">
+                <view class="inline-copy-btn" @click.stop="copyMessage(streamingMessage)" v-if="streamingMessage">
                   <text class="copy-icon">📋</text>
                 </view>
               </view>
@@ -586,6 +586,7 @@ export default {
   font-size: 20rpx;
   color: #667eea;
 }
+
 
 /* 加载动画 */
 .loading-message {
