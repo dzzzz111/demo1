@@ -24,7 +24,7 @@
         <view class="message-item" v-for="(message, index) in messageList" :key="index">
           <!-- 用户消息 -->
           <view class="message user-message" v-if="message.type === 'user'">
-            <view class="message-content user-content">
+            <view class="message-content user-content" @longpress="handleLongPress(message.content)">
               <text>{{ message.content }}</text>
             </view>
             <view class="message-avatar user-avatar">
@@ -33,13 +33,18 @@
           </view>
 
           <!-- AI消息 -->
-          <view class="message ai-message" v-else-if="message.type === 'assistant' || message.type === 'ai'">
+          <view class="message ai-message" v-else>
             <view class="message-avatar ai-avatar">
               <image src="/static/images/ai-avatar.png" mode="aspectFill"></image>
             </view>
-            <view class="message-content ai-content">
+            <view class="message-content ai-content" @longpress="handleLongPress(message.content)">
               <text>{{ message.content }}</text>
-              <view class="message-time">{{ message.time }}</view>
+              <view class="message-footer">
+                <view class="message-time">{{ message.time }}</view>
+                <view class="inline-copy-btn" @click.stop="copyMessage(message.content)">
+                  <text class="copy-icon">📋</text>
+                </view>
+              </view>
             </view>
           </view>
         </view>
@@ -50,9 +55,14 @@
             <view class="message-avatar ai-avatar">
               <image src="/static/images/ai-avatar.png" mode="aspectFill"></image>
             </view>
-            <view class="message-content ai-content">
+            <view class="message-content ai-content" @longpress="handleLongPress(streamingMessage)">
               <text>{{ streamingMessage }}</text>
-              <view class="message-time">{{ getCurrentTime() }}</view>
+              <view class="message-footer">
+                <view class="message-time">{{ getCurrentTime() }}</view>
+                <view class="inline-copy-btn" @click.stop="copyMessage(streamingMessage)">
+                  <text class="copy-icon">📋</text>
+                </view>
+              </view>
             </view>
           </view>
         </view>
@@ -79,7 +89,8 @@
             placeholder="请描述您的症状..."
             :maxlength="500"
             auto-height
-            @confirm="sendMessage"
+            @confirm="handleConfirm"
+            confirm-type="send"
           ></textarea>
           <view class="input-actions">
             <text class="char-count">{{ inputMessage.length }}/500</text>
@@ -138,6 +149,13 @@ export default {
     this.scrollToBottom();
   },
   methods: {
+    // 处理确认事件（回车键发送）
+    handleConfirm() {
+      if (this.inputMessage.trim()) {
+        this.sendMessage();
+      }
+    },
+
     // 发送消息
     async sendMessage() {
       if (!this.inputMessage.trim() || this.isLoading) return;
@@ -162,7 +180,7 @@ export default {
       } catch (error) {
         console.error('AI调用失败:', error);
         this.messageList.push({
-          type: 'assistant',
+          type: 'ai',
           content: '抱歉，我暂时无法回答您的问题，请稍后再试。',
           time: this.getCurrentTime()
         });
@@ -204,7 +222,7 @@ export default {
           // 如果是完整的响应，添加到消息列表
           if (isComplete) {
             this.messageList.push({
-              type: 'assistant',
+              type: 'ai',
               content: chunk,
               time: this.getCurrentTime()
             });
@@ -227,7 +245,7 @@ export default {
         // 如果流式响应没有完成，确保添加到消息列表
         if (this.isStreaming && this.streamingMessage) {
           this.messageList.push({
-            type: 'assistant',
+            type: 'ai',
             content: this.streamingMessage,
             time: this.getCurrentTime()
           });
@@ -298,6 +316,75 @@ export default {
     scrollToBottom() {
       this.$nextTick(() => {
         this.scrollTop = 999999;
+      });
+    },
+
+    // 处理长按事件
+    handleLongPress(content) {
+      if (!content || !content.trim()) {
+        uni.showToast({
+          title: '复制内容为空',
+          icon: 'none'
+        });
+        return;
+      }
+
+      // 添加震动反馈（如果设备支持）
+      uni.vibrateShort({
+        type: 'light',
+        success: () => {
+          console.log('震动反馈成功');
+        },
+        fail: () => {
+          console.log('设备不支持震动反馈');
+        }
+      });
+
+      uni.setClipboardData({
+        data: content,
+        success: () => {
+          uni.showToast({
+            title: '复制成功',
+            icon: 'success',
+            duration: 1500
+          });
+        },
+        fail: (err) => {
+          console.error('复制失败:', err);
+          uni.showToast({
+            title: '复制失败，请重试',
+            icon: 'none'
+          });
+        }
+      });
+    },
+
+    // 复制消息内容
+    copyMessage(content) {
+      if (!content || !content.trim()) {
+        uni.showToast({
+          title: '复制内容为空',
+          icon: 'none'
+        });
+        return;
+      }
+
+      uni.setClipboardData({
+        data: content,
+        success: () => {
+          uni.showToast({
+            title: '复制成功',
+            icon: 'success',
+            duration: 2000
+          });
+        },
+        fail: (err) => {
+          console.error('复制失败:', err);
+          uni.showToast({
+            title: '复制失败，请重试',
+            icon: 'none'
+          });
+        }
       });
     },
 
@@ -433,6 +520,14 @@ export default {
   line-height: 1.5;
   word-wrap: break-word;
   position: relative;
+  min-height: 60rpx;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.message-content:active {
+  transform: scale(0.98);
+  opacity: 0.9;
 }
 
 .message-avatar {
@@ -451,8 +546,45 @@ export default {
 .message-time {
   font-size: 22rpx;
   color: #999;
+  text-align: left;
+}
+
+/* 消息底部区域 */
+.message-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-top: 8rpx;
-  text-align: right;
+  padding-top: 8rpx;
+  border-top: 1rpx solid rgba(0, 0, 0, 0.05);
+}
+
+/* 内联复制按钮 */
+.inline-copy-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36rpx;
+  height: 36rpx;
+  border-radius: 50%;
+  background: rgba(102, 126, 234, 0.1);
+  transition: all 0.3s ease;
+  opacity: 0.7;
+}
+
+.inline-copy-btn:active {
+  transform: scale(0.9);
+  background: rgba(102, 126, 234, 0.2);
+}
+
+.inline-copy-btn:hover {
+  opacity: 1;
+  background: rgba(102, 126, 234, 0.15);
+}
+
+.copy-icon {
+  font-size: 20rpx;
+  color: #667eea;
 }
 
 /* 加载动画 */

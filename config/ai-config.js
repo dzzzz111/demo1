@@ -14,7 +14,7 @@ const AI_CONFIGS = {
     apiKey: 'sk-7f99ba359d6f4c7b98924e1cc71e28d6',
     apiUrl: 'https://dashscope.aliyuncs.com/api/v1/apps',
     modelName: 'qwen-max', // 可根据需要更换模型
-    enableThoughts: false, // 是否启用思考过程
+    enableThoughts: true, // 是否启用思考过程
     streamOutput: true // 是否启用流式输出
   },
 

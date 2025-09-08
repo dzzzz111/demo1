@@ -287,50 +287,50 @@ export default {
       setTimeout(() => {
         uni.hideLoading();
         
-        // 从本地缓存获取注册用户信息
-        const registeredUsers = uni.getStorageSync('registered_users') || [];
-        let userFound = false;
+        // 验证登录信息
         let currentUser = null;
-        
         if (this.loginType === 'password') {
-          // 密码登录验证
+          // 使用本地缓存中的注册信息验证
+          const registeredUsers = uni.getStorageSync('registered_users') || [];
           currentUser = registeredUsers.find(user => 
             user.username === this.passwordForm.username && 
             user.password === this.passwordForm.password
           );
         } else {
-          // 验证码登录验证（简化版，直接验证手机号）
-          currentUser = registeredUsers.find(user => user.phone === this.codeForm.phone);
+          // 验证码登录，检查手机号是否已注册
+          const registeredUsers = uni.getStorageSync('registered_users') || [];
+          currentUser = registeredUsers.find(user => 
+            user.phone === this.codeForm.phone
+          );
         }
         
         if (currentUser) {
           // 登录成功，保存token和用户信息
-          uni.setStorageSync('token', 'user_token_' + currentUser.userId);
+          uni.setStorageSync('token', 'token_' + currentUser.userId);
           uni.setStorageSync('userInfo', JSON.stringify({
             name: currentUser.username,
-            phone: currentUser.phone,
             avatar: '',
             tagline: '健康生活，从我做起',
             vipLevel: 1,
-            vipEndDate: '2023-12-31',
-            userId: currentUser.userId
+            vipEndDate: '2023-12-31'
           }));
-          
-          uni.showToast({
-            title: '登录成功',
-            icon: 'success'
-          });
-          
-          // 返回上一页
-          setTimeout(() => {
-            uni.navigateBack();
-          }, 1500);
         } else {
           uni.showToast({
-            title: this.loginType === 'password' ? '用户名或密码错误' : '手机号未注册',
+            title: '用户名或密码错误',
             icon: 'none'
           });
+          return;
         }
+        
+        uni.showToast({
+          title: '登录成功',
+          icon: 'success'
+        });
+        
+        // 返回上一页
+        setTimeout(() => {
+          uni.navigateBack();
+        }, 1500);
       }, 1000);
     },
     

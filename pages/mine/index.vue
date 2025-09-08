@@ -69,30 +69,30 @@
         <view class="group-title">健康档案</view>
         <view class="feature-item" @click="navigateTo('/pages/mine/medical-record')">
           <view class="item-icon medical-record">
-            <text class="iconfont">📋</text>
+            <text class="iconfont icon-record"></text>
           </view>
           <view class="item-content">
             <text class="item-name">病历记录</text>
           </view>
-          <text class="iconfont icon-right">›</text>
+          <text class="iconfont icon-right"></text>
         </view>
         <view class="feature-item" @click="navigateTo('/pages/mine/examination')">
           <view class="item-icon examination">
-            <text class="iconfont">📊</text>
+            <text class="iconfont icon-exam"></text>
           </view>
           <view class="item-content">
             <text class="item-name">体检报告</text>
           </view>
-          <text class="iconfont icon-right">›</text>
+          <text class="iconfont icon-right"></text>
         </view>
         <view class="feature-item" @click="navigateTo('/pages/mine/medication')">
           <view class="item-icon medication">
-            <text class="iconfont">💊</text>
+            <text class="iconfont icon-medicine"></text>
           </view>
           <view class="item-content">
             <text class="item-name">用药记录</text>
           </view>
-          <text class="iconfont icon-right">›</text>
+          <text class="iconfont icon-right"></text>
         </view>
       </view>
       
@@ -101,21 +101,21 @@
         <view class="group-title">服务记录</view>
         <view class="feature-item" @click="navigateTo('/pages/ai-doctor/history')">
           <view class="item-icon ai-history">
-            <text class="iconfont">🤖</text>
+            <text class="iconfont icon-chat-history"></text>
           </view>
           <view class="item-content">
             <text class="item-name">问诊记录</text>
           </view>
-          <text class="iconfont icon-right">›</text>
+          <text class="iconfont icon-right"></text>
         </view>
         <view class="feature-item" @click="navigateTo('/pages/image-diagnose/history')">
           <view class="item-icon image-history">
-            <text class="iconfont">🏥</text>
+            <text class="iconfont icon-image-history"></text>
           </view>
           <view class="item-content">
             <text class="item-name">图像诊断记录</text>
           </view>
-          <text class="iconfont icon-right">›</text>
+          <text class="iconfont icon-right"></text>
         </view>
       </view>
       
@@ -124,39 +124,39 @@
         <view class="group-title">系统设置</view>
         <view class="feature-item" @click="navigateTo('/pages/mine/settings')">
           <view class="item-icon settings">
-            <text class="iconfont">⚙️</text>
+            <text class="iconfont icon-settings"></text>
           </view>
           <view class="item-content">
-            <text class="item-name">系统设置</text>
+            <text class="item-name">设置</text>
           </view>
-          <text class="iconfont icon-right">›</text>
+          <text class="iconfont icon-right"></text>
         </view>
         <view class="feature-item" @click="navigateTo('/pages/mine/about')">
           <view class="item-icon about">
-            <text class="iconfont">ℹ️</text>
+            <text class="iconfont icon-about"></text>
           </view>
           <view class="item-content">
             <text class="item-name">关于我们</text>
           </view>
-          <text class="iconfont icon-right">›</text>
+          <text class="iconfont icon-right"></text>
         </view>
         <view class="feature-item" @click="navigateTo('/pages/mine/feedback')">
           <view class="item-icon feedback">
-            <text class="iconfont">💬</text>
+            <text class="iconfont icon-feedback"></text>
           </view>
           <view class="item-content">
             <text class="item-name">意见反馈</text>
           </view>
-          <text class="iconfont icon-right">›</text>
+          <text class="iconfont icon-right"></text>
         </view>
         <view class="feature-item" v-if="isLogin" @click="logout">
           <view class="item-icon logout">
-            <text class="iconfont">🚪</text>
+            <text class="iconfont icon-logout"></text>
           </view>
           <view class="item-content">
             <text class="item-name">退出登录</text>
           </view>
-          <text class="iconfont icon-right">›</text>
+          <text class="iconfont icon-right"></text>
         </view>
       </view>
     </view>
@@ -236,7 +236,7 @@ export default {
     },
     navigateTo(url) {
       // 检查页面是否存在
-      const existingPages = ['/pages/mine/login', '/pages/mine/settings'];
+      const existingPages = ['/pages/mine/login'];
       
       if (existingPages.includes(url)) {
         uni.navigateTo({
@@ -423,17 +423,16 @@ export default {
 /* 健康数据卡片 */
 .health-data {
   margin: 30rpx;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-color: #fff;
   border-radius: 12rpx;
   padding: 30rpx;
-  box-shadow: 0 8rpx 20rpx rgba(102, 126, 234, 0.3);
-  color: #fff;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
 }
 
 .card-title {
   font-size: 32rpx;
   font-weight: bold;
-  color: #fff;
+  color: #333;
   margin-bottom: 20rpx;
   display: flex;
   align-items: center;
@@ -441,8 +440,8 @@ export default {
 
 .title-tag {
   font-size: 22rpx;
-  color: #fff;
-  background-color: rgba(255, 255, 255, 0.2);
+  color: #3a7bd5;
+  background-color: rgba(58, 123, 213, 0.1);
   padding: 4rpx 12rpx;
   border-radius: 20rpx;
   margin-left: 20rpx;
@@ -461,15 +460,14 @@ export default {
 
 .data-value {
   font-size: 36rpx;
-  color: #fff;
+  color: #3a7bd5;
   font-weight: bold;
   margin-bottom: 10rpx;
-  text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.1);
 }
 
 .data-label {
   font-size: 24rpx;
-  color: rgba(255, 255, 255, 0.8);
+  color: #999;
 }
 
 /* 功能列表 */
@@ -514,7 +512,7 @@ export default {
 }
 
 .item-icon text {
-  font-size: 36rpx;
+  font-size: 40rpx;
 }
 
 .medical-record {

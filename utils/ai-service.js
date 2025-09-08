@@ -52,12 +52,13 @@ class AliyunBailianService {
 
     const data = {
       input: {
-        messages: messages,
+        prompt: this.buildPromptFromMessages(messages),
         biz_params: options.bizParams || {}
       },
       parameters: {
         incremental_output: this.streamOutput ? 'true' : 'false'
-      }
+      },
+      debug: {}
     };
     
     // 如果启用了思考过程，添加相应参数
@@ -76,14 +77,14 @@ class AliyunBailianService {
         return await this.makeStreamingRequest(url, {
           method: 'POST',
           headers: headers,
-          data: data
+          body: JSON.stringify(data)
         }, onStreamChunk);
       } else {
         // 普通请求
         const response = await this.makeRequest(url, {
           method: 'POST',
           headers: headers,
-          data: data
+          body: JSON.stringify(data)
         });
         return response;
       }
@@ -107,18 +108,8 @@ class AliyunBailianService {
           url: url,
           method: options.method,
           header: options.headers,
-          data: options.data,
+          data: options.body ? JSON.parse(options.body) : undefined,
           success: (res) => {
-            // 检查响应状态码
-            if (res.statusCode !== 200) {
-              reject(new Error(`HTTP错误: ${res.statusCode} ${res.data?.message || '未知错误'}`));
-              return;
-            }
-            // 检查响应是否为空
-            if (!res.data) {
-              reject(new Error('API响应内容为空'));
-              return;
-            }
             resolve(res.data);
           },
           fail: (err) => {
@@ -148,16 +139,6 @@ class AliyunBailianService {
           
           res.on('end', () => {
             try {
-              // 检查响应状态码
-              if (res.statusCode !== 200) {
-                reject(new Error(`HTTP错误: ${res.statusCode} ${data || '未知错误'}`));
-                return;
-              }
-              // 检查响应是否为空
-              if (!data) {
-                reject(new Error('API响应内容为空'));
-                return;
-              }
               const jsonData = JSON.parse(data);
               resolve(jsonData);
             } catch (error) {
@@ -170,28 +151,19 @@ class AliyunBailianService {
           reject(new Error(`请求失败: ${e.message}`));
         });
 
-        if (options.data) {
-          req.write(JSON.stringify(options.data));
+        if (options.body) {
+          req.write(options.body);
         }
         req.end();
       });
     }
     // 在普通浏览器环境中，使用fetch
     else {
-      const response = await fetch(url, {
-        method: options.method,
-        headers: options.headers,
-        body: options.data ? JSON.stringify(options.data) : undefined
-      });
+      const response = await fetch(url, options);
       if (!response.ok) {
         throw new Error(`HTTP错误: ${response.status} ${response.statusText}`);
       }
-      const data = await response.json();
-      // 检查响应是否为空
-      if (!data) {
-        throw new Error('API响应内容为空');
-      }
-      return data;
+      return await response.json();
     }
   }
 
@@ -205,7 +177,6 @@ class AliyunBailianService {
   async makeStreamingRequest(url, options, onChunk) {
     return new Promise((resolve, reject) => {
       let accumulatedResponse = null;
-      let hasContent = false;
       
       // 在UniApp环境中使用uni.request处理流式响应
       if (typeof uni !== 'undefined' && uni.request) {
@@ -213,35 +184,21 @@ class AliyunBailianService {
           url: url,
           method: options.method,
           header: options.headers,
-          data: options.data,
+          data: options.body ? JSON.parse(options.body) : undefined,
           success: (res) => {
             try {
-              // 检查响应状态码
-              if (res.statusCode !== 200) {
-                reject(new Error(`HTTP错误: ${res.statusCode} ${res.data?.message || '未知错误'}`));
-                return;
-              }
-              
               // 处理响应数据
               let responseData = res.data;
-              
-              // 检查响应是否为空
-              if (!responseData) {
-                reject(new Error('API响应内容为空'));
-                return;
-              }
               
               // 如果响应是字符串且包含SSE格式
               if (typeof responseData === 'string' && responseData.includes('data:')) {
                 accumulatedResponse = this.processSSEResponse(responseData, onChunk);
-                hasContent = true;
               } 
               // 如果是对象且包含output.text
               else if (responseData && responseData.output && responseData.output.text) {
                 accumulatedResponse = responseData;
                 // 直接调用回调函数显示完整内容
                 onChunk(responseData.output.text, true);
-                hasContent = true;
               }
               // 如果是字符串但不包含SSE格式
               else if (typeof responseData === 'string') {
@@ -250,25 +207,17 @@ class AliyunBailianService {
                   if (jsonData.output && jsonData.output.text) {
                     accumulatedResponse = jsonData;
                     onChunk(jsonData.output.text, true);
-                    hasContent = true;
                   }
                 } catch (parseError) {
                   // JSON解析失败，直接显示
                   onChunk(responseData, true);
-                  hasContent = true;
                 }
-              }
-              
-              // 如果没有任何内容，抛出错误
-              if (!hasContent) {
-                reject(new Error('AI回复内容为空'));
-                return;
               }
               
               resolve(accumulatedResponse);
             } catch (error) {
               console.error('处理响应数据失败:', error);
-              reject(new Error(`处理响应数据失败: ${error.message}`));
+              reject(error);
             }
           },
           fail: (err) => {
@@ -277,11 +226,7 @@ class AliyunBailianService {
         });
       } else {
         // 非UniApp环境，使用fetch处理真实的SSE流式响应
-        fetch(url, {
-          method: options.method,
-          headers: options.headers,
-          body: options.data ? JSON.stringify(options.data) : undefined
-        })
+        fetch(url, options)
           .then(response => {
             if (!response.ok) {
               throw new Error(`HTTP错误: ${response.status} ${response.statusText}`);
@@ -290,7 +235,6 @@ class AliyunBailianService {
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
             let buffer = '';
-            let hasContent = false;
             
             const processStream = async () => {
               try {
@@ -314,7 +258,6 @@ class AliyunBailianService {
                           if (data.output && data.output.text) {
                             onChunk(data.output.text, false);
                             accumulatedResponse = data;
-                            hasContent = true;
                           }
                         }
                       } catch (parseError) {
@@ -336,7 +279,6 @@ class AliyunBailianService {
                           if (data.output && data.output.text) {
                             onChunk(data.output.text, true);
                             accumulatedResponse = data;
-                            hasContent = true;
                           }
                         }
                       } catch (parseError) {
@@ -344,11 +286,6 @@ class AliyunBailianService {
                       }
                     }
                   }
-                }
-                
-                // 如果没有任何内容，抛出错误
-                if (!hasContent) {
-                  throw new Error('AI回复内容为空');
                 }
                 
                 resolve(accumulatedResponse);
@@ -375,7 +312,6 @@ class AliyunBailianService {
     const lines = responseData.split('\n');
     let accumulatedText = '';
     let lastResponse = null;
-    let hasContent = false;
     
     for (const line of lines) {
       if (line.startsWith('data:')) {
@@ -386,7 +322,6 @@ class AliyunBailianService {
             if (data.output && data.output.text) {
               accumulatedText += data.output.text;
               lastResponse = data;
-              hasContent = true;
             }
           }
         } catch (parseError) {
@@ -395,7 +330,7 @@ class AliyunBailianService {
       }
     }
     
-    if (hasContent && accumulatedText) {
+    if (accumulatedText) {
       onChunk(accumulatedText, true);
     }
     
@@ -431,9 +366,19 @@ class AliyunBailianService {
    * @returns {string} 构建好的提示文本
    */
   buildPromptFromMessages(messages) {
-    // 阿里云百炼API期望的是messages数组格式，不需要转换为prompt文本
-    // 这个方法主要用于兼容其他需要prompt格式的API
-    return messages;
+    let prompt = '';
+    
+    for (const message of messages) {
+      if (message.role === 'system') {
+        prompt += `系统：${message.content}\n`;
+      } else if (message.role === 'user') {
+        prompt += `用户：${message.content}\n`;
+      } else if (message.role === 'assistant') {
+        prompt += `助手：${message.content}\n`;
+      }
+    }
+    
+    return prompt.trim();
   }
 
   /**
@@ -448,13 +393,6 @@ class AliyunBailianService {
         return {
           role: 'user',
           content: msg
-        };
-      }
-      // 确保role字段是正确的格式
-      if (msg.role === 'ai') {
-        return {
-          ...msg,
-          role: 'assistant'
         };
       }
       return msg;

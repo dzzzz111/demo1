@@ -110,6 +110,9 @@
 </template>
 
 <script>
+// 导入图像分析服务
+import imageAnalysis from '@/utils/image-analysis.js';
+
 export default {
   data() {
     return {
@@ -164,26 +167,81 @@ export default {
     cancelImage() {
       this.imageUrl = '';
     },
-    startDiagnosis() {
-      // 模拟诊断过程
+    async startDiagnosis() {
+      // 显示加载状态
       uni.showLoading({
         title: '正在诊断中...'
       });
-      
-      setTimeout(() => {
-        uni.hideLoading();
+
+      try {
+        // 将图像转换为Base64格式
+        const base64Image = await this.imageToBase64(this.imageUrl);
         
-        // 随机生成一个骨关节炎分期结果
-        const stages = ['I', 'II', 'III', 'IV'];
-        const randomStage = stages[Math.floor(Math.random() * stages.length)];
+        // 调用API进行图像分析
+        const result = await imageAnalysis.analyzeImage(base64Image);
         
-        // 根据随机分期生成诊断结果
-        this.generateMockResult(randomStage);
+        // 设置诊断结果
+        this.diagnosisResult = result;
         
         // 设置当前时间
         const now = new Date();
         this.currentTime = `${now.getFullYear()}-${this.padZero(now.getMonth() + 1)}-${this.padZero(now.getDate())} ${this.padZero(now.getHours())}:${this.padZero(now.getMinutes())}`;
-      }, 2000);
+        
+      } catch (error) {
+        console.error('诊断失败:', error);
+        uni.hideLoading();
+        uni.showToast({
+          title: '诊断失败，请重试',
+          icon: 'error'
+        });
+      } finally {
+        uni.hideLoading();
+      }
+    },
+
+    /**
+     * 将图像文件转换为Base64编码
+     * @param {string} filePath - 图像文件路径
+     * @returns {Promise<string>} Base64编码的图像数据
+     */
+    async imageToBase64(filePath) {
+      try {
+        // 使用UniApp的文件系统API读取本地文件
+        const fileManager = uni.getFileSystemManager();
+        
+        // 读取文件为Base64
+        const base64Data = await new Promise((resolve, reject) => {
+          fileManager.readFile({
+            filePath: filePath,
+            encoding: 'base64',
+            success: (res) => {
+              resolve(res.data);
+            },
+            fail: (error) => {
+              reject(error);
+            }
+          });
+        });
+        
+        // 添加图像前缀
+        const extension = this.getImageExtension(filePath);
+        return `data:image/${extension};base64,${base64Data}`;
+        
+      } catch (error) {
+        console.error('图像转换失败:', error);
+        throw new Error('图像转换失败: ' + error.message);
+      }
+    },
+
+    /**
+     * 从文件路径获取图像扩展名
+     * @param {string} filePath - 文件路径
+     * @returns {string} 图像扩展名
+     */
+    getImageExtension(filePath) {
+      const extension = filePath.split('.').pop().toLowerCase();
+      const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
+      return imageExtensions.includes(extension) ? extension : 'jpg';
     },
     generateMockResult(stage) {
       // 不同分期的骨关节炎诊断结果
@@ -233,21 +291,32 @@ export default {
       this.diagnosisResult = null;
     },
     saveDiagnosis() {
-      // 保存诊断结果
+      // 保存诊断结果到历史记录
+      if (!this.diagnosisResult || !this.diagnosisResult.items) {
+        uni.showToast({
+          title: '没有可保存的诊断结果',
+          icon: 'error'
+        });
+        return;
+      }
+
       uni.showToast({
         title: '已保存到诊断历史',
         icon: 'success'
       });
       
-      // 模拟添加到历史记录
+      // 添加到历史记录
       this.diagnosisHistory.unshift({
         id: Date.now(),
         type: this.diagnosisTypes[this.currentType].name,
         imageUrl: this.imageUrl,
         mainResult: this.diagnosisResult.items[0].value,
-        time: this.currentTime
+        time: this.currentTime,
+        confidence: this.diagnosisResult.confidence,
+        stage: this.diagnosisResult.stage
       });
       
+      // 延迟重置诊断状态
       setTimeout(() => {
         this.resetDiagnosis();
       }, 1500);
