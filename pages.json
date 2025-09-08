@@ -79,23 +79,15 @@
 		"list": [
 			{
 				"pagePath": "pages/index/index",
-				"text": "首页",
-				"iconPath": "static/tabbar/tab-home.png",
-				"selectedIconPath": "static/tabbar/tab-home-active.png"
+				"text": "首页"
 			},
 			{
 				"pagePath": "pages/community/index",
-				"text": "社区",
-				"iconPath": "static/tabbar/tab-home.png",
-				"selectedIconPath": "static/tabbar/tab-home-active.png"
-				// 注意：需要创建社区图标文件 tab-community.png 和 tab-community-active.png
-				// 然后将上面的路径改为 "static/tabbar/tab-community.png"
+				"text": "社区"
 			},
 			{
 				"pagePath": "pages/mine/index",
-				"text": "我的",
-				"iconPath": "static/tabbar/tab-mine.png",
-				"selectedIconPath": "static/tabbar/tab-mine-active.png"
+				"text": "我的"
 			}
 		]
 	},

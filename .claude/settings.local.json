@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "Bash(git pull:*)",
+      "Bash(git remote add:*)"
     ],
     "deny": []
   }
