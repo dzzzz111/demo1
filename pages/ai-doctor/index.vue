@@ -79,7 +79,8 @@
             placeholder="请描述您的症状..."
             :maxlength="500"
             auto-height
-            @confirm="sendMessage"
+            @confirm="handleConfirm"
+            confirm-type="send"
           ></textarea>
           <view class="input-actions">
             <text class="char-count">{{ inputMessage.length }}/500</text>
@@ -138,6 +139,13 @@ export default {
     this.scrollToBottom();
   },
   methods: {
+    // 处理确认事件（回车键发送）
+    handleConfirm() {
+      if (this.inputMessage.trim()) {
+        this.sendMessage();
+      }
+    },
+
     // 发送消息
     async sendMessage() {
       if (!this.inputMessage.trim() || this.isLoading) return;
