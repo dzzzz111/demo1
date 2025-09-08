@@ -1,24 +1,93 @@
-# Node.js
+# UniApp 项目 .gitignore 文件
+# 针对医疗助手应用进行优化
+
+# ==================== Node.js ====================
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
+.npm
+.yarn-integrity
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
 
-# UniApp
+# ==================== UniApp 特定 ====================
+# 编译输出目录
 unpackage/
+dist/
+build/
+
+# HBuilderX 相关
 .hbuilderx/
 *.zip
 *.rar
+*.wgt
+*.apk
+*.ipa
 
-# IDE
-.idea/
+# UniCloud 相关
+uniCloud-aliyun/database/
+uniCloud-aliyun/storage/
+uniCloud-tcb/database/
+uniCloud-tcb/storage/
+
+# ==================== 小程序相关 ====================
+# 微信小程序
+unpackage/dist/dev/mp-weixin/
+unpackage/dist/build/mp-weixin/
+unpackage/dist/dev/.sourcemap/mp-weixin/
+unpackage/dist/build/.sourcemap/mp-weixin/
+
+# 支付宝小程序
+unpackage/dist/dev/mp-alipay/
+unpackage/dist/build/mp-alipay/
+
+# 百度小程序
+unpackage/dist/dev/mp-baidu/
+unpackage/dist/build/mp-baidu/
+
+# 头条小程序
+unpackage/dist/dev/mp-toutiao/
+unpackage/dist/build/mp-toutiao/
+
+# QQ小程序
+unpackage/dist/dev/mp-qq/
+unpackage/dist/build/mp-qq/
+
+# ==================== IDE 编辑器 ====================
+# VS Code
 .vscode/
+*.code-workspace
+
+# JetBrains IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
 *.swp
 *.swo
 *~
 
-# OS
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# ==================== 操作系统 ====================
+# macOS
 .DS_Store
 .DS_Store?
 ._*
@@ -27,129 +96,186 @@ unpackage/
 ehthumbs.db
 Thumbs.db
 
-# Logs
-logs
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+
+# ==================== 日志和临时文件 ====================
+logs/
 *.log
-
-# Runtime data
-pids
-*.pid
-*.seed
-*.pid.lock
-
-# Coverage directory used by tools like istanbul
-coverage/
-
-# nyc test coverage
-.nyc_output
-
-# Grunt intermediate storage
-.grunt
-
-# Bower dependency directory
-bower_components
-
-# node-waf configuration
-.lock-wscript
-
-# Compiled binary addons
-build/Release
-
-# Dependency directories
-jspm_packages/
-
-# TypeScript v1 declaration files
-typings/
-
-# Optional npm cache directory
-.npm
-
-# Optional eslint cache
-.eslintcache
-
-# Optional REPL history
-.node_repl_history
-
-# Output of 'npm pack'
-*.tgz
-
-# Yarn Integrity file
-.yarn-integrity
-
-# dotenv environment variables file
-.env
-.env.test
-
-# parcel-bundler cache
-.cache
-.parcel-cache
-
-# next.js build output
-.next
-
-# nuxt.js build output
-.nuxt
-
-# vuepress build output
-.vuepress/dist
-
-# Serverless directories
-.serverless/
-
-# FuseBox cache
-.fusebox/
-
-# DynamoDB Local files
-.dynamodb/
-
-# TernJS port file
-.tern-port
-
-# Stores VSCode versions used for testing VSCode extensions
-.vscode-test
-
-# Project specific
-temp/
-tmp/
 *.tmp
 *.temp
-dist/
-build/
+temp/
+tmp/
+.cache/
+.parcel-cache/
 
-# Test files
-test-*.js
-custom-test.js
+# ==================== 测试和覆盖率 ====================
+coverage/
+.nyc_output/
+test-coverage/
+test-results/
+junit.xml
 
-# API keys and sensitive data
+# ==================== 环境配置文件 ====================
+# 环境变量
+.env
+.env.*
+!.env.example
+!.env.sample
+
+# 配置文件
+config/local*.js
+config/development*.js
+config/test*.js
+config/production*.js
+config/staging*.js
+
+# AI 配置（包含敏感信息）
+config/ai-config.js
+config/ai-config.local.js
+config/api-keys.js
+config/secrets.js
+
+# ==================== 数据库和存储 ====================
+*.db
+*.sqlite
+*.sqlite3
+*.mdb
+*.accdb
+
+# 缓存文件
+.cache/
+*.cache
+
+# 会话数据
+*.session
+sessions/
+
+# ==================== 安全和密钥 ====================
+# SSL 证书
 *.key
 *.pem
 *.p12
 *.pfx
-.env.*
-config/local*.js
-config/production*.js
+*.crt
+*.csr
+*.cer
 
-# Database files
-*.db
-*.sqlite
-*.sqlite3
+# API 密钥和敏感数据
+api-keys.txt
+secrets.json
+credentials.json
+*.key
+*.secret
 
-# Cache
-.cache/
-*.cache
+# ==================== 构建和打包 =================###
+# 构建输出
+dist/
+build/
+out/
+.output/
 
-# Lock files
-package-lock.json
-yarn.lock
+# 压缩文件
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.zip
+*.rar
+*.7z
 
-# Generated files
+# 包管理器
+*.tgz
+
+# ==================== 运行时和进程 ====================
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# ==================== 开发工具 =================###
+# ESLint
+.eslintcache
+
+# TypeScript
+*.tsbuildinfo
+types/
+
+# Tern.js
+.tern-port
+
+# ==================== 文档和生成文件 =================###
+# 生成的文档
+docs/api/
+docs/generated/
+
+# 生成的代码
 *.generated.js
 *.generated.ts
+generated/
 
-# Debug files
+# ==================== 备份文件 =================###
+*.bak
+*.backup
+*.old
+*.orig
+
+# ==================== 项目特定 =================###
+# 响应数据
+response.json
+test-response.json
+
+# 临时测试文件
+test-*.js
+custom-test.js
+debug.js
+
+# 调试文件
 debug/
 debug.txt
 
-# Backup files
-*.bak
-*.backup
+# 项目私有配置
+project.private.config.json
+project.config.private.json
+
+# 增强记忆目录
+.augment_memory/
+
+# ==================== 其他常见文件 ====================
+# 缩略图
+*.thumbnail
+*.thumb
+
+# 崩溃报告
+*.crash
+*.dmp
+
+# 内存转储
+*.dmp
+*.mdmp
+
+# 系统文件
+*.sys
+*.dll
+*.exe
+*.so
+*.dylib
+
+# ==================== 允许的文件（覆盖上面的忽略规则）====================
+# 允许的示例配置文件
+!.env.example
+!.env.sample
+
+# 允许的文档
+!README.md
+!docs/
+!docs/*.md
+
+# 允许的配置模板
+!config/*.example.js
+!config/*.template.js
