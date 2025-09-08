@@ -437,29 +437,96 @@ export default {
     parseOptionsFromContent(content) {
       const options = [];
       
+      // 1. 如果是确认信息（包含"请问您是否确定以上信息"），不解析选项
+      if (content.includes('请问您是否确定以上信息') || content.includes('参数信息输出')) {
+        return options;
+      }
+      
+      // 2. 如果是参数总结信息（包含大量"用户XX："格式），不解析选项
+      const userParamCount = (content.match(/用户[^：]+：/g) || []).length;
+      if (userParamCount > 3) {
+        return options;
+      }
+      
+      // 3. 如果是判断结果信息（包含"用户是否可能患有骨关节炎"等），不解析选项
+      if (content.includes('用户是否可能患有骨关节炎') || 
+          content.includes('用户可能的关节炎部位') || 
+          content.includes('用户可能的骨关节炎临床分期') ||
+          content.includes('接下来是否开始为您制定')) {
+        return options;
+      }
+      
+      // 4. 如果是参数总结信息（包含多个|分隔的参数），不解析选项
+      const paramCount = (content.match(/\|/g) || []).length;
+      if (paramCount > 5) {
+        return options;
+      }
+      
+      // 5. 如果包含大量逗号分隔的参数（可能是参数总结），不解析选项
+      const commaCount = (content.match(/，/g) || []).length;
+      if (commaCount > 10) {
+        return options;
+      }
+      
+      // 6. 如果是AI的总结性陈述（包含"根据以上信息"等），不解析选项
+      if (content.includes('根据以上信息') || 
+          content.includes('根据您提供的信息') ||
+          content.includes('接下来是否开始') ||
+          content.includes('是否开始为您')) {
+        return options;
+      }
+      
       // 匹配 【选项1、选项2】格式的选项
       const bracketMatch = content.match(/【([^】]+)】/);
       if (bracketMatch) {
         const optionsText = bracketMatch[1];
-        const optionList = optionsText.split('、').map(opt => opt.trim());
-        options.push(...optionList);
+        // 过滤掉包含|的选项（避免解析参数列表）
+        const optionList = optionsText.split('、').map(opt => opt.trim()).filter(opt => 
+          !opt.includes('|') && 
+          !opt.includes('用户') &&
+          !opt.includes('参数') &&
+          !opt.includes('：') &&
+          opt.length < 15
+        );
+        if (optionList.length > 0 && optionList.length <= 6) {
+          options.push(...optionList);
+        }
       }
       
-      // 匹配 【选项1、选项2】格式的选项（使用方括号）
+      // 匹配 [选项1、选项2] 格式的选项（使用方括号）
       const squareBracketMatch = content.match(/\[([^\]]+)\]/);
       if (squareBracketMatch) {
         const optionsText = squareBracketMatch[1];
-        const optionList = optionsText.split('、').map(opt => opt.trim());
-        options.push(...optionList);
+        // 过滤掉包含|的选项
+        const optionList = optionsText.split('、').map(opt => opt.trim()).filter(opt => 
+          !opt.includes('|') && 
+          !opt.includes('用户') &&
+          !opt.includes('参数') &&
+          !opt.includes('：') &&
+          opt.length < 15
+        );
+        if (optionList.length > 0 && optionList.length <= 6) {
+          options.push(...optionList);
+        }
       }
       
-      // 匹配 选项1|选项2|选项3 格式的选项
+      // 匹配 选项1|选项2|选项3 格式的选项（只有在选项数量合理且不含复杂参数时）
       const pipeMatch = content.match(/([^\|]+)\|([^\|]+)(?:\|([^\|]+))*/);
-      if (pipeMatch) {
+      if (pipeMatch && paramCount <= 5) {
         const allOptions = content.match(/([^|\n]+)/g);
-        if (allOptions && allOptions.length > 1) {
-          const filteredOptions = allOptions.map(opt => opt.trim()).filter(opt => opt.length > 0);
-          options.push(...filteredOptions);
+        if (allOptions && allOptions.length > 1 && allOptions.length <= 6) {
+          const filteredOptions = allOptions.map(opt => opt.trim()).filter(opt => 
+            opt.length > 0 && 
+            !opt.includes('参数') && 
+            !opt.includes('信息') &&
+            !opt.includes('以下') &&
+            !opt.includes('用户') &&
+            !opt.includes('：') &&
+            opt.length < 20 // 选项文本长度限制
+          );
+          if (filteredOptions.length > 0) {
+            options.push(...filteredOptions);
+          }
         }
       }
       
