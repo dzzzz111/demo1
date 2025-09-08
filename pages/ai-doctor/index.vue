@@ -37,12 +37,25 @@
             <view class="message-avatar ai-avatar">
               <image src="/static/images/ai-avatar.png" mode="aspectFill"></image>
             </view>
-            <view class="message-content ai-content" @longpress="handleLongPress(message.content)">
-              <text>{{ message.content }}</text>
-              <view class="message-footer">
-                <view class="message-time">{{ message.time }}</view>
-                <view class="inline-copy-btn" @click.stop="copyMessage(message.content)">
-                  <text class="copy-icon">📋</text>
+            <view class="message-content-wrapper">
+              <view class="message-content ai-content" @longpress="handleLongPress(message.content)">
+                <text>{{ message.content }}</text>
+                <view class="message-footer">
+                  <view class="message-time">{{ message.time }}</view>
+                  <view class="inline-copy-btn" @click.stop="copyMessage(message.content)">
+                    <text class="copy-icon">📋</text>
+                  </view>
+                </view>
+              </view>
+              <!-- 选项按钮 -->
+              <view class="options-buttons" v-if="message.options && message.options.length > 0">
+                <view 
+                  class="option-btn" 
+                  v-for="(option, optIndex) in message.options" 
+                  :key="optIndex"
+                  @click="selectOption(option)"
+                >
+                  <text>{{ option }}</text>
                 </view>
               </view>
             </view>
@@ -55,12 +68,25 @@
             <view class="message-avatar ai-avatar">
               <image src="/static/images/ai-avatar.png" mode="aspectFill"></image>
             </view>
-            <view class="message-content ai-content" @longpress="handleLongPress(streamingMessage)">
-              <text>{{ streamingMessage || '对方正在输入中...' }}</text>
-              <view class="message-footer">
-                <view class="message-time">{{ getCurrentTime() }}</view>
-                <view class="inline-copy-btn" @click.stop="copyMessage(streamingMessage)" v-if="streamingMessage">
-                  <text class="copy-icon">📋</text>
+            <view class="message-content-wrapper">
+              <view class="message-content ai-content" @longpress="handleLongPress(streamingMessage)">
+                <text>{{ streamingMessage || '对方正在输入中...' }}</text>
+                <view class="message-footer">
+                  <view class="message-time">{{ getCurrentTime() }}</view>
+                  <view class="inline-copy-btn" @click.stop="copyMessage(streamingMessage)" v-if="streamingMessage">
+                    <text class="copy-icon">📋</text>
+                  </view>
+                </view>
+              </view>
+              <!-- 流式响应的选项按钮 -->
+              <view class="options-buttons" v-if="streamingOptions && streamingOptions.length > 0">
+                <view 
+                  class="option-btn" 
+                  v-for="(option, optIndex) in streamingOptions" 
+                  :key="optIndex"
+                  @click="selectOption(option)"
+                >
+                  <text>{{ option }}</text>
                 </view>
               </view>
             </view>
@@ -128,7 +154,8 @@ export default {
       scrollTop: 0,
       aiService: null,
       streamingMessage: '',
-      isStreaming: false
+      isStreaming: false,
+      streamingOptions: []
     };
   },
   onLoad() {
@@ -182,7 +209,8 @@ export default {
         this.messageList.push({
           type: 'ai',
           content: '抱歉，我暂时无法回答您的问题，请稍后再试。',
-          time: this.getCurrentTime()
+          time: this.getCurrentTime(),
+          options: []
         });
       } finally {
         this.isLoading = false;
@@ -219,15 +247,23 @@ export default {
         const onStreamChunk = (chunk, isComplete) => {
           this.streamingMessage = chunk;
           
+          // 解析选项
+          if (chunk) {
+            this.streamingOptions = this.parseOptionsFromContent(chunk);
+          }
+          
           // 如果是完整的响应，添加到消息列表
           if (isComplete) {
+            const options = this.parseOptionsFromContent(chunk);
             this.messageList.push({
               type: 'ai',
               content: chunk,
-              time: this.getCurrentTime()
+              time: this.getCurrentTime(),
+              options: options
             });
             this.isStreaming = false;
             this.streamingMessage = '';
+            this.streamingOptions = [];
           }
           
           // 自动滚动到底部
@@ -244,13 +280,16 @@ export default {
         
         // 如果流式响应没有完成，确保添加到消息列表
         if (this.isStreaming && this.streamingMessage) {
+          const options = this.parseOptionsFromContent(this.streamingMessage);
           this.messageList.push({
             type: 'ai',
             content: this.streamingMessage,
-            time: this.getCurrentTime()
+            time: this.getCurrentTime(),
+            options: options
           });
           this.isStreaming = false;
           this.streamingMessage = '';
+          this.streamingOptions = [];
         }
         
         // 返回完整的AI回复
@@ -386,6 +425,45 @@ export default {
           });
         }
       });
+    },
+
+    // 选择选项按钮
+    selectOption(option) {
+      this.inputMessage = option;
+      this.sendMessage();
+    },
+
+    // 解析AI回复中的选项
+    parseOptionsFromContent(content) {
+      const options = [];
+      
+      // 匹配 【选项1、选项2】格式的选项
+      const bracketMatch = content.match(/【([^】]+)】/);
+      if (bracketMatch) {
+        const optionsText = bracketMatch[1];
+        const optionList = optionsText.split('、').map(opt => opt.trim());
+        options.push(...optionList);
+      }
+      
+      // 匹配 【选项1、选项2】格式的选项（使用方括号）
+      const squareBracketMatch = content.match(/\[([^\]]+)\]/);
+      if (squareBracketMatch) {
+        const optionsText = squareBracketMatch[1];
+        const optionList = optionsText.split('、').map(opt => opt.trim());
+        options.push(...optionList);
+      }
+      
+      // 匹配 选项1|选项2|选项3 格式的选项
+      const pipeMatch = content.match(/([^\|]+)\|([^\|]+)(?:\|([^\|]+))*/);
+      if (pipeMatch) {
+        const allOptions = content.match(/([^|\n]+)/g);
+        if (allOptions && allOptions.length > 1) {
+          const filteredOptions = allOptions.map(opt => opt.trim()).filter(opt => opt.length > 0);
+          options.push(...filteredOptions);
+        }
+      }
+      
+      return options;
     },
 
     goBack() {
@@ -698,6 +776,52 @@ export default {
   opacity: 0.6;
 }
 
+/* 消息内容包装器 */
+.message-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+/* 选项按钮 */
+.options-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-top: 8rpx;
+}
+
+.option-btn {
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  color: #495057;
+  padding: 16rpx 24rpx;
+  border-radius: 20rpx;
+  font-size: 26rpx;
+  border: 2rpx solid #dee2e6;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+}
+
+.option-btn:active {
+  transform: scale(0.95);
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  border-color: #667eea;
+  box-shadow: 0 4rpx 12rpx rgba(102, 126, 234, 0.3);
+}
+
+.option-btn:hover {
+  background: linear-gradient(135deg, #e9ecef, #dee2e6);
+  border-color: #adb5bd;
+}
+
+/* 选项按钮文字 */
+.option-btn text {
+  font-weight: 500;
+  white-space: nowrap;
+}
+
 /* 响应式设计 */
 @media screen and (max-width: 750rpx) {
   .message {
@@ -712,6 +836,12 @@ export default {
   .message-avatar {
     width: 70rpx;
     height: 70rpx;
+  }
+
+  .option-btn {
+    padding: 14rpx 20rpx;
+    font-size: 24rpx;
+    border-radius: 18rpx;
   }
 }
 </style> 
