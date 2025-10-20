@@ -1,0 +1,7 @@
+{
+  "name": "decryptWechatSteps",
+  "main": "index.js",
+  "version": "1.0.0",
+  "description": "微信步数解密云函数",
+  "dependencies": {}
+}

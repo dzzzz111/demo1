@@ -32,15 +32,21 @@
       </view>
       <view class="vip-card" v-if="userInfo.vipLevel > 0">
         <view class="vip-type">{{ vipLevelText }}</view>
-        <view class="vip-date">有效期至：{{ userInfo.vipEndDate }}</view>
+        <view class="vip-date">{{ userInfo.vipLevel === 1 ? '永久有效' : '有效期至：' + userInfo.vipEndDate }}</view>
       </view>
     </view>
     
     <!-- 健康数据卡片 -->
     <view class="health-data" v-if="isLogin">
       <view class="card-title">
-        <text>我的健康</text>
-        <text class="title-tag">本周</text>
+        <view class="title-section">
+          <text>我的健康</text>
+          <text class="title-tag">本周</text>
+        </view>
+        <view class="sync-btn" @click="syncHealthData">
+          <text class="sync-icon">🔄</text>
+          <text>同步数据</text>
+        </view>
       </view>
       <view class="data-grid">
         <view class="data-item">
@@ -169,6 +175,8 @@
 </template>
 
 <script>
+import healthService from '@/utils/health-service-simple.js'
+
 export default {
   data() {
     return {
@@ -181,10 +189,10 @@ export default {
         vipEndDate: '2023-12-31'
       },
       healthData: {
-        steps: '8,432',
-        sleepHours: '7.5',
-        heartRate: '72',
-        bloodPressure: '120/80'
+        steps: '0',
+        sleepHours: '0',
+        heartRate: '0',
+        bloodPressure: '0/0'
       },
       statusBarHeight: 20 // 默认值
     };
@@ -220,6 +228,8 @@ export default {
       // 如果已登录，获取用户信息
       if (this.isLogin) {
         this.getUserInfo();
+        this.loadHealthData();
+        this.checkAndSyncData(); // 检查是否需要自动同步
       }
     },
     getUserInfo() {
@@ -272,6 +282,28 @@ export default {
           }
         }
       });
+    },
+
+    // 加载健康数据
+    loadHealthData() {
+      this.healthData = healthService.getLocalHealthData();
+    },
+
+    // 检查是否需要自动同步数据
+    checkAndSyncData() {
+      if (healthService.needSync()) {
+        this.syncHealthData(false); // 不显示加载提示的静默同步
+      }
+    },
+
+    // 同步健康数据
+    async syncHealthData(showLoading = true) {
+      try {
+        const healthData = await healthService.syncHealthData(showLoading);
+        this.healthData = healthData;
+      } catch (error) {
+        console.error('同步健康数据失败:', error);
+      }
     }
   }
 }
@@ -436,6 +468,12 @@ export default {
   margin-bottom: 20rpx;
   display: flex;
   align-items: center;
+  justify-content: space-between;
+}
+
+.title-section {
+  display: flex;
+  align-items: center;
 }
 
 .title-tag {
@@ -446,6 +484,31 @@ export default {
   border-radius: 20rpx;
   margin-left: 20rpx;
   font-weight: normal;
+}
+
+.sync-btn {
+  display: flex;
+  align-items: center;
+  font-size: 24rpx;
+  color: #3a7bd5;
+  padding: 8rpx 16rpx;
+  background-color: rgba(58, 123, 213, 0.1);
+  border-radius: 20rpx;
+  transition: all 0.3s ease;
+}
+
+.sync-btn:active {
+  background-color: rgba(58, 123, 213, 0.2);
+  transform: scale(0.95);
+}
+
+.sync-icon {
+  margin-right: 6rpx;
+  font-size: 20rpx;
+}
+
+.sync-btn:hover {
+  background-color: rgba(58, 123, 213, 0.15);
 }
 
 .data-grid {

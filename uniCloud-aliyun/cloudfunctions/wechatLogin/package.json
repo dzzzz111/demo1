@@ -1,0 +1,7 @@
+{
+  "name": "wechatLogin",
+  "main": "index.js",
+  "version": "1.0.0",
+  "description": "微信一键登录云函数",
+  "dependencies": {}
+}

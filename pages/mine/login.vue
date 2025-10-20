@@ -17,82 +17,36 @@
     
     <!-- 登录表单 -->
     <view class="login-form">
-      <!-- 切换登录方式 -->
-      <view class="tab-header">
-        <view 
-          class="tab-item" 
-          :class="{ active: loginType === 'password' }"
-          @click="switchLoginType('password')"
-        >
-          密码登录
-        </view>
-        <view 
-          class="tab-item" 
-          :class="{ active: loginType === 'code' }"
-          @click="switchLoginType('code')"
-        >
-          验证码登录
-        </view>
-      </view>
       
       <!-- 密码登录表单 -->
-      <view v-if="loginType === 'password'">
+      <view>
         <view class="input-item">
           <text class="iconfont icon-user"></text>
-          <input 
-            type="text" 
-            v-model="passwordForm.username" 
-            placeholder="请输入用户名/手机号" 
+          <input
+            type="text"
+            v-model="passwordForm.username"
+            placeholder="请输入用户名/手机号"
             maxlength="20"
           />
         </view>
         <view class="input-item">
           <text class="iconfont icon-password"></text>
-          <input 
-            :type="showPassword ? 'text' : 'password'" 
-            v-model="passwordForm.password" 
-            placeholder="请输入密码" 
+          <input
+            :type="showPassword ? 'text' : 'password'"
+            v-model="passwordForm.password"
+            placeholder="请输入密码"
             maxlength="20"
           />
-          <text 
-            class="iconfont toggle-password" 
+          <text
+            class="iconfont toggle-password"
             :class="showPassword ? 'icon-eye-open' : 'icon-eye-close'"
             @click="togglePasswordVisibility"
           ></text>
         </view>
       </view>
       
-      <!-- 验证码登录表单 -->
-      <view v-else>
-        <view class="input-item">
-          <text class="iconfont icon-phone"></text>
-          <input 
-            type="number" 
-            v-model="codeForm.phone" 
-            placeholder="请输入手机号" 
-            maxlength="11"
-          />
-        </view>
-        <view class="input-item">
-          <text class="iconfont icon-code"></text>
-          <input 
-            type="number" 
-            v-model="codeForm.code" 
-            placeholder="请输入验证码" 
-            maxlength="6"
-          />
-          <view 
-            class="code-btn" 
-            :class="{ disabled: codeBtnDisabled }"
-            @click="sendCode"
-          >
-            {{ codeText }}
-          </view>
-        </view>
-      </view>
-      
       <!-- 记住密码/忘记密码 -->
-      <view class="option-row" v-if="loginType === 'password'">
+      <view class="option-row">
         <view class="remember-pwd" @click="toggleRememberPwd">
           <view class="checkbox" :class="{ checked: rememberPwd }"></view>
           <text>记住密码</text>
@@ -103,6 +57,14 @@
       <!-- 登录按钮 -->
       <view class="login-btn" @click="login">登录</view>
       
+      <!-- 微信一键登录 -->
+      <view class="wechat-login">
+        <view class="wechat-login-btn" @click="wechatLogin">
+          <text class="wechat-icon">🟢</text>
+          <text>微信一键登录</text>
+        </view>
+      </view>
+
       <!-- 其他登录方式 -->
       <view class="other-login">
         <view class="divider">
@@ -111,9 +73,6 @@
           <view class="line"></view>
         </view>
         <view class="other-login-icons">
-          <view class="icon-item" @click="otherLogin('wechat')">
-            <text class="iconfont icon-wechat"></text>
-          </view>
           <view class="icon-item" @click="otherLogin('alipay')">
             <text class="iconfont icon-alipay"></text>
           </view>
@@ -146,21 +105,13 @@
 export default {
   data() {
     return {
-      loginType: 'password', // password: 密码登录, code: 验证码登录
       passwordForm: {
         username: '',
         password: ''
       },
-      codeForm: {
-        phone: '',
-        code: ''
-      },
       showPassword: false,
       rememberPwd: false,
       agreeProtocol: true,
-      codeText: '获取验证码',
-      codeBtnDisabled: false,
-      countDown: 60,
       statusBarHeight: 20 // 默认值
     };
   },
@@ -177,60 +128,128 @@ export default {
     this.statusBarHeight = systemInfo.statusBarHeight || 20;
   },
   methods: {
-    // 切换登录方式
-    switchLoginType(type) {
-      this.loginType = type;
-    },
-    
     // 切换密码显示/隐藏
     togglePasswordVisibility() {
       this.showPassword = !this.showPassword;
     },
-    
+
     // 切换记住密码
     toggleRememberPwd() {
       this.rememberPwd = !this.rememberPwd;
     },
-    
+
     // 切换同意协议
     toggleAgreement() {
       this.agreeProtocol = !this.agreeProtocol;
     },
-    
-    // 发送验证码
-    sendCode() {
-      if (this.codeBtnDisabled) return;
-      
-      // 验证手机号
-      if (!this.codeForm.phone || !/^1\d{10}$/.test(this.codeForm.phone)) {
+
+    // 微信一键登录
+    wechatLogin() {
+      // 检查协议是否同意
+      if (!this.agreeProtocol) {
         uni.showToast({
-          title: '请输入正确的手机号',
+          title: '请先同意用户协议和隐私政策',
           icon: 'none'
         });
         return;
       }
-      
-      // 开始倒计时
-      this.codeBtnDisabled = true;
-      this.codeText = `${this.countDown}s`;
-      
-      const timer = setInterval(() => {
-        this.countDown--;
-        this.codeText = `${this.countDown}s`;
-        
-        if (this.countDown <= 0) {
-          clearInterval(timer);
-          this.codeBtnDisabled = false;
-          this.codeText = '获取验证码';
-          this.countDown = 60;
+
+      // 检查当前运行环境
+      const platform = uni.getSystemInfoSync().platform;
+      console.log('当前平台:', platform);
+
+      // 检查是否在微信小程序环境中
+      const isInWechatMiniProgram = typeof wx !== 'undefined' || platform === 'mp-weixin';
+
+      if (!isInWechatMiniProgram) {
+        uni.showToast({
+          title: '请在微信小程序中使用',
+          icon: 'none'
+        });
+        return;
+      }
+
+      uni.showLoading({
+        title: '登录中...'
+      });
+
+      // 获取微信登录授权码
+      uni.login({
+        provider: 'weixin',
+        success: (loginRes) => {
+          console.log('微信登录授权码:', loginRes.code);
+
+          if (loginRes.code) {
+            // 调用云函数进行微信登录
+            this.callWechatLoginCloudFunction(loginRes.code);
+          } else {
+            uni.hideLoading();
+            uni.showToast({
+              title: '获取微信授权码失败',
+              icon: 'none'
+            });
+          }
+        },
+        fail: (err) => {
+          uni.hideLoading();
+          console.error('微信登录失败:', err);
+
+          uni.showToast({
+            title: '微信登录失败，请重试',
+            icon: 'none'
+          });
         }
-      }, 1000);
-      
-      // 模拟发送验证码
+      });
+    },
+
+    // 调用微信登录云函数
+    callWechatLoginCloudFunction(code) {
+      uniCloud.callFunction({
+        name: 'wechatLogin',
+        data: {
+          code: code
+        },
+        success: (res) => {
+          uni.hideLoading();
+          console.log('云函数响应:', res.result);
+
+          if (res.result.code === 0) {
+            this.handleLoginSuccess(res.result);
+          } else {
+            uni.showToast({
+              title: res.result.message || '登录失败',
+              icon: 'none'
+            });
+          }
+        },
+        fail: (err) => {
+          uni.hideLoading();
+          console.error('云函数调用失败:', err);
+
+          uni.showToast({
+            title: '登录失败，请重试',
+            icon: 'none'
+          });
+        }
+      });
+    },
+
+
+    // 处理登录成功
+    handleLoginSuccess(result) {
+      // 保存token和用户信息
+      uni.setStorageSync('token', result.token);
+      uni.setStorageSync('userInfo', JSON.stringify(result.userInfo));
+
       uni.showToast({
-        title: '验证码已发送',
+        title: '登录成功',
         icon: 'success'
       });
+
+      // 返回上一页
+      setTimeout(() => {
+        uni.navigateBack();
+      }, 1500);
     },
     
     // 登录
@@ -243,67 +262,39 @@ export default {
         });
         return;
       }
-      
-      if (this.loginType === 'password') {
-        // 密码登录验证
-        if (!this.passwordForm.username || !this.passwordForm.password) {
-          uni.showToast({
-            title: '请输入用户名和密码',
-            icon: 'none'
-          });
-          return;
-        }
-        
-        // 记住密码
-        if (this.rememberPwd) {
-          uni.setStorageSync('remember_account', JSON.stringify(this.passwordForm));
-        } else {
-          uni.removeStorageSync('remember_account');
-        }
-      } else {
-        // 验证码登录验证
-        if (!this.codeForm.phone || !/^1\d{10}$/.test(this.codeForm.phone)) {
-          uni.showToast({
-            title: '请输入正确的手机号',
-            icon: 'none'
-          });
-          return;
-        }
-        
-        if (!this.codeForm.code || this.codeForm.code.length !== 6) {
-          uni.showToast({
-            title: '请输入6位验证码',
-            icon: 'none'
-          });
-          return;
-        }
+
+      // 密码登录验证
+      if (!this.passwordForm.username || !this.passwordForm.password) {
+        uni.showToast({
+          title: '请输入用户名和密码',
+          icon: 'none'
+        });
+        return;
       }
-      
+
+      // 记住密码
+      if (this.rememberPwd) {
+        uni.setStorageSync('remember_account', JSON.stringify(this.passwordForm));
+      } else {
+        uni.removeStorageSync('remember_account');
+      }
+
       // 模拟登录请求
       uni.showLoading({
         title: '登录中...'
       });
-      
+
       setTimeout(() => {
         uni.hideLoading();
-        
+
         // 验证登录信息
-        let currentUser = null;
-        if (this.loginType === 'password') {
-          // 使用本地缓存中的注册信息验证
-          const registeredUsers = uni.getStorageSync('registered_users') || [];
-          currentUser = registeredUsers.find(user => 
-            user.username === this.passwordForm.username && 
-            user.password === this.passwordForm.password
-          );
-        } else {
-          // 验证码登录，检查手机号是否已注册
-          const registeredUsers = uni.getStorageSync('registered_users') || [];
-          currentUser = registeredUsers.find(user => 
-            user.phone === this.codeForm.phone
-          );
-        }
-        
+        // 使用本地缓存中的注册信息验证
+        const registeredUsers = uni.getStorageSync('registered_users') || [];
+        const currentUser = registeredUsers.find(user =>
+          user.username === this.passwordForm.username &&
+          user.password === this.passwordForm.password
+        );
+
         if (currentUser) {
           // 登录成功，保存token和用户信息
           uni.setStorageSync('token', 'token_' + currentUser.userId);
@@ -314,30 +305,29 @@ export default {
             vipLevel: 1,
             vipEndDate: '2023-12-31'
           }));
+
+          uni.showToast({
+            title: '登录成功',
+            icon: 'success'
+          });
+
+          // 返回上一页
+          setTimeout(() => {
+            uni.navigateBack();
+          }, 1500);
         } else {
           uni.showToast({
             title: '用户名或密码错误',
             icon: 'none'
           });
-          return;
         }
-        
-        uni.showToast({
-          title: '登录成功',
-          icon: 'success'
-        });
-        
-        // 返回上一页
-        setTimeout(() => {
-          uni.navigateBack();
-        }, 1500);
       }, 1000);
     },
     
     // 其他登录方式
     otherLogin(type) {
       uni.showToast({
-        title: `${type === 'wechat' ? '微信' : '支付宝'}登录功能开发中`,
+        title: `${type === 'alipay' ? '支付宝' : '其他'}登录功能开发中`,
         icon: 'none'
       });
     },
@@ -441,37 +431,6 @@ export default {
   flex: 1;
 }
 
-.tab-header {
-  display: flex;
-  border-bottom: 1rpx solid #f0f0f0;
-  margin-bottom: 30rpx;
-}
-
-.tab-item {
-  flex: 1;
-  text-align: center;
-  font-size: 32rpx;
-  color: #999;
-  padding: 20rpx 0;
-  position: relative;
-}
-
-.tab-item.active {
-  color: #3a7bd5;
-  font-weight: 500;
-}
-
-.tab-item.active:after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80rpx;
-  height: 4rpx;
-  background-color: #3a7bd5;
-}
-
 .input-item {
   display: flex;
   align-items: center;
@@ -494,21 +453,6 @@ export default {
 
 .toggle-password {
   font-size: 40rpx;
-}
-
-.code-btn {
-  width: 200rpx;
-  height: 60rpx;
-  line-height: 60rpx;
-  text-align: center;
-  border-radius: 30rpx;
-  background-color: #3a7bd5;
-  color: #fff;
-  font-size: 24rpx;
-}
-
-.code-btn.disabled {
-  background-color: #ccc;
 }
 
 .option-row {
@@ -565,6 +509,35 @@ export default {
   font-size: 32rpx;
   border-radius: 45rpx;
   margin-bottom: 40rpx;
+}
+
+/* 微信一键登录 */
+.wechat-login {
+  margin-bottom: 40rpx;
+}
+
+.wechat-login-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 90rpx;
+  background-color: #07c160;
+  color: #fff;
+  font-size: 32rpx;
+  border-radius: 45rpx;
+  box-shadow: 0 4rpx 10rpx rgba(7, 193, 96, 0.3);
+}
+
+.wechat-icon {
+  font-size: 40rpx;
+  margin-right: 10rpx;
+}
+
+.login-tip {
+  text-align: center;
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 10rpx;
 }
 
 .other-login {

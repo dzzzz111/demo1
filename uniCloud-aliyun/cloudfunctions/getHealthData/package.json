@@ -1,0 +1,7 @@
+{
+  "name": "getHealthData",
+  "main": "index.js",
+  "version": "1.0.0",
+  "description": "健康数据获取云函数",
+  "dependencies": {}
+}
