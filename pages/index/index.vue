@@ -37,7 +37,7 @@
 
     <!-- 功能区 -->
     <view class="function-area">
-      <view class="function-item ai-function" @click="navigateTo('/pages/ai-doctor/index')">
+      <view class="function-item ai-function" @click="navigateTo('/pagesA/ai-doctor/index')">
         <view class="function-icon-wrapper">
           <view class="function-icon ai-icon">
             <image src="/static/icons/ai-icon.png" mode="aspectFit"></image>
@@ -47,7 +47,7 @@
         <text class="function-text">AI智能问诊</text>
         <text class="function-desc">专业医疗咨询</text>
       </view>
-      <view class="function-item image-function" @click="navigateTo('/pages/image-diagnose/index')">
+      <view class="function-item image-function" @click="navigateTo('/pagesA/image-diagnose/index')">
         <view class="function-icon-wrapper">
           <view class="function-icon image-icon">
             <image src="/static/icons/image-icon.png" mode="aspectFit"></image>

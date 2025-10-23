@@ -14,7 +14,7 @@
         <image src="/static/images/default-avatar.png"></image>
       </view>
       <view class="login-action">
-        <view class="login-btn" @click="navigateTo('/pages/mine/login')">登录 / 注册</view>
+        <view class="login-btn" @click="navigateTo('/pagesB/mine/login')">登录 / 注册</view>
         <text class="hint-text">登录后享受更多健康服务</text>
       </view>
     </view>
@@ -128,7 +128,7 @@
       <!-- 系统设置 -->
       <view class="feature-group">
         <view class="group-title">系统设置</view>
-        <view class="feature-item" @click="navigateTo('/pages/mine/settings')">
+        <view class="feature-item" @click="navigateTo('/pagesB/mine/settings')">
           <view class="item-icon settings">
             <text class="iconfont icon-settings"></text>
           </view>
@@ -246,7 +246,10 @@ export default {
     },
     navigateTo(url) {
       // 检查页面是否存在
-      const existingPages = ['/pages/mine/login'];
+      const existingPages = [
+        '/pagesB/mine/login',
+        '/pagesB/mine/settings'
+      ];
       
       if (existingPages.includes(url)) {
         uni.navigateTo({
