@@ -432,7 +432,7 @@ export default {
     
     viewPostDetail(post) {
       uni.navigateTo({
-        url: `/pages/community/detail?id=${post.id}`
+        url: `/pagesB/community/detail?id=${post.id}`
       });
     },
     
